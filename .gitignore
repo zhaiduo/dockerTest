@@ -1,0 +1,13 @@
+node_modules
+public/
+.DS_Store
+temp
+www
+logs
+changed
+npm-debug.log
+.eslintrc
+dev/css/*.css
+_config.js
+change.log
+uploads
