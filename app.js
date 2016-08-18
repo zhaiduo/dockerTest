@@ -126,7 +126,7 @@ const User = sequelize.define('user', {
 })
 //Img.belongsTo(User, {foreignKey: 'userId'});
 sequelize.sync()
-Img.drop()
+//Img.drop()
 Img.sync()
 
 // Add headers
