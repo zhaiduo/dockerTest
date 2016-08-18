@@ -7,15 +7,21 @@ const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
 
+// App
+const app = express()
+
+console.log("env", app.get('env'))
+const config = require('./config.js').setting[app.get('env')]
+console.log("config", config)
 // Constants
-const PORT = 8080
-const HOST = 'localhost'
-const HTTP = 'http'
-const UPLOAD_URL = 'upload'
-const UPLOAD_DIR = 'uploads'
-const CORS_DOMAIN = 'http://localhost:8088'
-const IMG_PREFIX = 'blob_'
-const SQL_DIR = 'db'
+const PORT = config['PORT']
+const HOST = config['HOST']
+const HTTP = config['HTTP']
+const UPLOAD_URL = config['UPLOAD_URL']
+const UPLOAD_DIR = config['UPLOAD_DIR']
+const CORS_DOMAIN = config['CORS_DOMAIN']
+const IMG_PREFIX = config['IMG_PREFIX']
+const SQL_DIR = config['SQL_DIR']
 
 const getDateObj = (t) => {
     let dt;
@@ -122,9 +128,6 @@ const User = sequelize.define('user', {
 sequelize.sync()
 Img.drop()
 Img.sync()
-
-// App
-const app = express()
 
 // Add headers
 app.use((req, res, next) => {

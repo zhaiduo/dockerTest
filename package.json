@@ -5,7 +5,8 @@
   "author": "Adam <lvyadong@hopperclouds.com>",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "NODE_ENV=production node app.js",
+    "develop": "NODE_ENV=development node app.js"
   },
   "dependencies": {
     "express": "^4.13.3",
