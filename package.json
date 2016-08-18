@@ -1,6 +1,6 @@
 {
   "name": "docker_node_app",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Node.js on Docker",
   "author": "Adam <lvyadong@hopperclouds.com>",
   "main": "app.js",
@@ -9,6 +9,14 @@
   },
   "dependencies": {
     "express": "^4.13.3",
-    "formidable": "^1.0.17"
-  }
+    "formidable": "^1.0.17",
+    "mkdirp": "^0.5.1",
+    "sequelize": "^3.24.0",
+    "sqlite3": "^3.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhaiduo/dockerTest"
+  },
+  "license": "MIT"
 }
