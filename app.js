@@ -1,5 +1,5 @@
 // app.js
-'use strict'
+//'use strict'
 
 const express = require('express')
 const formidable = require('formidable')
