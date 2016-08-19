@@ -134,7 +134,7 @@ sequelize.sync()
 //Img.drop()
 Img.sync()
 
-
+const eachPage = 10
 
 // Add headers
 app.use((req, res, next) => {
