@@ -6,7 +6,7 @@ const formidable = require('formidable')
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
-const koa = require('koa')
+    //const koa = require('koa')
 
 // App
 const app = express()
@@ -110,26 +110,26 @@ const Img = sequelize.define('img', {
     }
 })
 const User = sequelize.define('user', {
-    id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        validate: {
-            isEmail: true
+        id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true
         },
-        unique: true
-    },
-    name: {
-        type: Sequelize.STRING,
-        allowNull: true
-    }
-})
-//Img.belongsTo(User, {foreignKey: 'userId'});
+        email: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                isEmail: true
+            },
+            unique: true
+        },
+        name: {
+            type: Sequelize.STRING,
+            allowNull: true
+        }
+    })
+    //Img.belongsTo(User, {foreignKey: 'userId'});
 sequelize.sync()
 //Img.drop()
 Img.sync()
@@ -157,22 +157,45 @@ app.use((req, res, next) => {
 })
 
 app.use('/' + UPLOAD_DIR, express.static(UPLOAD_DIR))
+app.use('/static', express.static('static'))
 
 app.get('/', (req, res) => {
     Img.findAndCountAll({
         where: {},
         offset: 0,
         limit: 10,
-        order: [['id', 'DESC']]
+        order: [
+            ['id', 'DESC']
+        ]
     }).then(result => {
         //console.log('result.count', result.count);
         //console.log('result.rows', result.rows);
-        /*let html = '<ul>'
-        for (let i = 0; i < result.count; i++) {
-            html += '<li>' + (i + 1) + '. ' + result.rows[i].dataValues.category + '<br><img src="' + result.rows[i].dataValues.url + '"><br>' + '![](' + result.rows[i].dataValues.url + ' "' + result.rows[i].dataValues.name + '")</li>'
-        }
-        html += '</ul>'*/
-        res.send(tmpl.indexTmpl(result.rows))
+        let more = {
+            link: CORS_DOMAIN
+        };
+        res.send(tmpl.indexTmpl(result.count, 1, eachPage, result.rows, more))
+    })
+})
+
+app.get('/:page', (req, res) => {
+    let cp = 1
+    if (typeof req.params.page === 'string' && req.params.page.match(/^[0-9]+$/i)) cp = req.params.page
+    const eachPage = 10
+    let offset = eachPage * (parseInt(cp, 10) - 1)
+    Img.findAndCountAll({
+        where: {},
+        offset: offset,
+        limit: eachPage,
+        order: [
+            ['id', 'DESC']
+        ]
+    }).then(result => {
+        //console.log('result.count', result.count);
+        //console.log('result.rows', result.rows);
+        let more = {
+            link: CORS_DOMAIN
+        };
+        res.send(tmpl.indexTmpl(result.count, cp, eachPage, result.rows, more))
     })
 })
 

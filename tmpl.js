@@ -45,18 +45,69 @@ const html = (literalSections, ...substs) => {
     return result;
 };
 
-exports.indexTmpl = rows => html`
-        <h1>Welcome to Image Server! </h1>
-        <ul>
-        ${rows.map((row, index) => html`
-            <li>
-                $${index+1}. $${row.dataValues.category}<br>
-                <img src="$${row.dataValues.url}" border="0"><br>
-                ![] ($${row.dataValues.url} "$${row.dataValues.name}")
-                <br>
-            </li>
+exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
+<!DOCTYPE html>
+<html class="qp-ui" data-qp-ui="{
+  'Futurizr': {
+  'hasTouch': 'touch'
+  }
+  }">
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/styles.css" rel="stylesheet" />
+    <meta name="viewport" content="initial-scale=1, width=device-width"/>
+    <meta name="keywords" content=""/>
+    <title>Pinbot Image Server</title>
+  </head>
+  <body class="site-material_ext_publish section-resources noninitial-chapter color-light-blue qp-ui" data-qp-ui="{ 'Mask': {} }">
+    <header>
+      <div class="header-wrapper">
+        <div class="header-title">
+        <span class="section-title"><img src="http://test.bi.pinbot.me/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
+        <span class="chapter-title"></span>
+      </div>
+    </div>
+  </header>
+  <div id="grid-cont">
+    <section class="grid_outer chapter">
+      <h1 class="chapter-title">Welcome to Image Server! <a href="$${more.link}">&gt;&gt; 点击这里粘贴上传</a></h1>
+      <div class="chapter-content">
+        <nav class="chapter-toc">
+          <h1>(总共$${sum}张截图，每页显示$${eachPage}张)</h1>
+          <ul>
+            ${rows.map((row, index) => html`
+                <li class="gweb-smoothscroll-control qp-ui">
+                    <div class="image">
+                        <div class="box"><a href="$${row.dataValues.url}" target="_blank"><span class="center-helper"></span><img src="$${row.dataValues.url}" border="0"></a></div>
+                    </div>
+                    <div class="info">
+                        <span>【$${index+1}】 $${row.dataValues.name} </span><br>
+                        <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
+                        <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
+                        <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>] ($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
+                        <input type="button" name="copy_md_$${index+1}" class="copy-md" id="copy_md_$${index+1}" value="复制Markdown格式">
+                        <br>
+                    </div>
+                </li>
+            `)}
+            </ul>
+        </nav>
+        <div class="article-list">
+        </div>
+      </section>
+    </div>
+    <footer>
+        <div class="text-center paging">
+        <a class="$${parseInt(cp,10) > 1 ? '' : 'hide'}" href="$${parseInt(cp,10) > 1 ? parseInt(cp,10) - 1 : 'javascript:void(0);'}">上一页</a>
+        ${Array.from({length: 1+parseInt(sum/eachPage,10)}, (v, k) => k+1).map((n,i)=>html`
+            <a class="$${parseInt(n,10) === parseInt(cp,10) ? 'current' : ''}" href="$${parseInt(n,10) === parseInt(cp,10) ? 'javascript:void(0);' : '/'+n}">第$${n}页</a>
         `)}
-        </ul>
+        <a class="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? '' : 'hide'}" href="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? parseInt(cp,10) + 1 : 'javascript:void(0);'}">下一页</a>
+        </div>
+    </footer>
+    <script src="/static/lib.js"></script>
+  </body>
+</html>
     `;
 
 /*
