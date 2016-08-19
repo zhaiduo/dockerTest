@@ -1,11 +1,12 @@
 // app.js
-//'use strict'
+'use strict'
 
 const express = require('express')
 const formidable = require('formidable')
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
+const koa = require('koa')
 
 // App
 const app = express()
@@ -13,6 +14,10 @@ const app = express()
 console.log("env", app.get('env'))
 const config = require('./config.js').setting[app.get('env')]
 console.log("config", config)
+
+//tmpl
+const tmpl = require('./tmpl.js')
+
 // Constants
 const PORT = config['PORT']
 const HOST = config['HOST']
@@ -129,6 +134,8 @@ sequelize.sync()
 //Img.drop()
 Img.sync()
 
+
+
 // Add headers
 app.use((req, res, next) => {
 
@@ -155,16 +162,17 @@ app.get('/', (req, res) => {
     Img.findAndCountAll({
         where: {},
         offset: 0,
-        limit: 10
+        limit: 10,
+        order: [['id', 'DESC']]
     }).then(result => {
-        console.log('result.count', result.count);
-        console.log('result.rows', result.rows);
-        let html = '<ul>'
+        //console.log('result.count', result.count);
+        //console.log('result.rows', result.rows);
+        /*let html = '<ul>'
         for (let i = 0; i < result.count; i++) {
             html += '<li>' + (i + 1) + '. ' + result.rows[i].dataValues.category + '<br><img src="' + result.rows[i].dataValues.url + '"><br>' + '![](' + result.rows[i].dataValues.url + ' "' + result.rows[i].dataValues.name + '")</li>'
         }
-        html += '</ul>'
-        res.send('<h1>Welcome to Image Server! </h1>' + html)
+        html += '</ul>'*/
+        res.send(tmpl.indexTmpl(result.rows))
     })
 })
 
