@@ -11,12 +11,12 @@ COPY . /usr/src/app
 # echo '@edge http://nl.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories \
 # apk update && apk upgrade \
 # apk add --no-cache nodejs-lts@edge \
-RUN apk update && apk upgrade \
+
+RUN apk update && apk upgrade && apk add bash \
   && npm cache clean -f \
   && npm install -g n \
   && n latest \
   && npm install \
-  && npm uninstall -g npm \
   && rm -rf /tmp/* \
   && rm -rf /root/.npm/
 
