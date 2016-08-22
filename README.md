@@ -7,6 +7,15 @@
 
 ##More Tips
 
+初始化 `docker` 环境
+> eval "$(docker-machine env default)"
+
+查看所有容器
+> docker ps -a
+
+查看删除已有容器
+> docker rm [CONTAINER ID]
+
 创建一个容器，让其中运行 `bash` 应用。
 > docker run -t -i zhaiduo/docker_node_app:alpine /bin/bash
 
@@ -34,6 +43,13 @@
 
 移除本地的镜像，可以使用 `docker rmi` 命令。注意 `docker rm` 命令是移除容器
 > docker rmi [IMAGE]
+
+调试 `docker` 启动错误
+> docker start -a -i [CONTAINER ID]
+
+问题：Repository xxx already being pulled by another client. Waiting.
+> docker-machine restart default
+> eval "$(docker-machine env default)"
 
 * 注意：在删除镜像之前要先用 `docker rm` 删掉依赖于这个镜像的所有容器。
 

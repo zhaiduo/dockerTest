@@ -159,6 +159,11 @@ app.use((req, res, next) => {
 app.use('/' + UPLOAD_DIR, express.static(UPLOAD_DIR))
 app.use('/static', express.static('static'))
 
+//http://www.infoq.com/cn/articles/quit-scheme-of-node-uncaughtexception-emergence
+/*process.on('uncaughtException', function (err) {
+  console.log('uncaughtException', err)
+})*/
+
 app.get('/', (req, res) => {
     Img.findAndCountAll({
         where: {},
