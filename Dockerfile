@@ -19,7 +19,9 @@ RUN apk update && apk upgrade && apk add --update openssl && apk add bash \
   && npm install \
   && rm -rf /tmp/* \
   && rm -rf /root/.npm/ \
-  && cp example_config.js config.js
+  && cp example_config.js config.js \
+  && mkdir db \
+  && mkdir uploads
 
 # Expose port
 EXPOSE 8080
