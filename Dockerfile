@@ -12,13 +12,14 @@ COPY . /usr/src/app
 # apk update && apk upgrade \
 # apk add --no-cache nodejs-lts@edge \
 
-RUN apk update && apk upgrade && apk add bash \
+RUN apk update && apk upgrade && apk add --update openssl && apk add bash \
   && npm cache clean -f \
   && npm install -g n \
   && n latest \
   && npm install \
   && rm -rf /tmp/* \
-  && rm -rf /root/.npm/
+  && rm -rf /root/.npm/ \
+  && cp example_config.js config.js
 
 # Expose port
 EXPOSE 8080

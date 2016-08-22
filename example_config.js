@@ -13,11 +13,11 @@ exports.setting = {
     },
     "production": {
         "PORT": 8080,
-        "HOST": "",
+        "HOST": "localhost",
         "HTTP": "http",
         "UPLOAD_URL": "upload",
         "UPLOAD_DIR": "uploads",
-        "CORS_DOMAIN": "http://:8088",
+        "CORS_DOMAIN": "http://localhost:8088",
         "IMG_PREFIX": "blob_",
         "SQL_DIR": "db"
     }
