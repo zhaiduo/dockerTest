@@ -167,8 +167,9 @@ li input[type="button"]:hover{
     opacity: 0.8;
 }
 .image{
-    width: 25%;
+    width: 35%;
     float: left;
+    overflow: hidden;
 }
 .box{
     width: 400px;

@@ -45,6 +45,36 @@ const html = (literalSections, ...substs) => {
     return result;
 };
 
+const getDateObj = (t) => {
+    let dt;
+    if (t !== undefined) {
+        if (typeof t === 'string' || typeof t === 'number') {
+            dt = new Date(t);
+        } else {
+            dt = new Date();
+        }
+    } else {
+        dt = new Date();
+    }
+    return {
+        y: dt.getFullYear(),
+        m: dt.getMonth() + 1,
+        d: dt.getDate(),
+        h: dt.getHours(),
+        i: dt.getMinutes(),
+        s: dt.getSeconds()
+    };
+}
+
+const publisDate = name => {
+  if(name.match(/([0-9]+)\.png$/i)){
+    let dt = getDateObj(parseInt(RegExp.$1, 10))
+    return `发布于：${dt.y}年${dt.m}月${dt.d}日 ${dt.h}时:${dt.i}分:${dt.s}秒`;
+  }else{
+    return name
+  }
+};
+
 exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
 <!DOCTYPE html>
 <html class="qp-ui" data-qp-ui="{
@@ -63,7 +93,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
     <header>
       <div class="header-wrapper">
         <div class="header-title">
-        <span class="section-title"><img src="http://test.bi.pinbot.me/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
+        <span class="section-title"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
         <span class="chapter-title"></span>
       </div>
     </div>
@@ -81,7 +111,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                         <div class="box"><a href="$${row.dataValues.url}" target="_blank"><span class="center-helper"></span><img src="$${row.dataValues.url}" border="0"></a></div>
                     </div>
                     <div class="info">
-                        <span>【$${index+1}】 $${row.dataValues.name} </span><br>
+                        <span>【$${index+1}】 $${publisDate(row.dataValues.name)} </span><br>
                         <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
                         <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
                         <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>] ($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
