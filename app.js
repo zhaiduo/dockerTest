@@ -125,16 +125,6 @@ const Img = sequelize.define('img', {
         validate: {
             isUrl: true
         }
-    },
-    userId: {
-        type: Sequelize.INTEGER,
-        model: 'user',
-        key: 'id'
-    },
-    tagId: {
-        type: Sequelize.INTEGER,
-        model: 'tag',
-        key: 'id'
     }
 })
 /*
