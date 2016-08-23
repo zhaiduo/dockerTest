@@ -18,20 +18,22 @@ const compiler = webpack(webpackDevConfig)
 // App
 const app = express()
 
-// attach to the compiler & the server
-app.use(webpackDevMiddleware(compiler, {
-    // public path should be the same with webpack config
-    publicPath: webpackDevConfig.output.publicPath,
-    noInfo: true,
-    stats: {
-        colors: true
-    }
-}))
-app.use(webpackHotMiddleware(compiler))
-
 console.log("env", app.get('env'))
 const config = require('./config.js').setting[app.get('env')]
 console.log("config", config)
+
+if(app.get('env') === 'development'){
+    // attach to the compiler & the server
+    app.use(webpackDevMiddleware(compiler, {
+        // public path should be the same with webpack config
+        publicPath: webpackDevConfig.output.publicPath,
+        noInfo: true,
+        stats: {
+            colors: true
+        }
+    }))
+    app.use(webpackHotMiddleware(compiler))
+}
 
 //tmpl
 const tmpl = require('./tmpl.js')
