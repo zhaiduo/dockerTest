@@ -205,9 +205,9 @@ app.use('/' + UPLOAD_DIR, express.static(UPLOAD_DIR))
 app.use('/static', express.static('static'))
 
 //http://www.infoq.com/cn/articles/quit-scheme-of-node-uncaughtexception-emergence
-process.on('uncaughtException', function(err) {
+/*process.on('uncaughtException', function(err) {
     console.log('uncaughtException', err)
-})
+})*/
 
 const jwtTokenSecret = 'hello world !'
 
@@ -301,7 +301,7 @@ app.post('/' + UPLOAD_URL, (req, res) => {
         // every time a file has been uploaded successfully,
         // rename it to it's orignal name
         form.on('file', (field, file) => {
-            //console.log('file', file.path, form.uploadDir, file.name);
+            console.log('file', field, file.path, form.uploadDir, file.name);
             imgName = `${IMG_PREFIX}${new Date().getTime()}` + '.png'
             fs.rename(file.path, path.join(form.uploadDir, imgName))
         })
