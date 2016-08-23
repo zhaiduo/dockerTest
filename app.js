@@ -125,29 +125,44 @@ const Img = sequelize.define('img', {
         validate: {
             isUrl: true
         }
+    },
+    userId: {
+        type: Sequelize.INTEGER,
+        model: 'user',
+        key: 'id'
+    },
+    tagId: {
+        type: Sequelize.INTEGER,
+        model: 'tag',
+        key: 'id'
     }
 })
+/*
+Utils deprecated Non-object references property found. Support for that will be removed in version 4. Expected { references: { model: "value", key: "key" } } instead of { references: "value", referencesKey: "key" }
+*/
 const User = sequelize.define('user', {
-        id: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            autoIncrement: true,
-            primaryKey: true
+    id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+            isEmail: true
         },
-        email: {
-            type: Sequelize.STRING,
-            allowNull: false,
-            validate: {
-                isEmail: true
-            },
-            unique: true
-        },
-        name: {
-            type: Sequelize.STRING,
-            allowNull: true
-        }
+        unique: true
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: true
+    }
 })
-Img.belongsTo(User, {foreignKey: 'userId'});
+Img.belongsTo(User, {
+    foreignKey: 'userId'
+});
 
 const Tag = sequelize.define('tag', {
     id: {
@@ -162,7 +177,9 @@ const Tag = sequelize.define('tag', {
         unique: true
     }
 })
-Img.belongsTo(Tag, {foreignKey: 'tagId'});
+Img.belongsTo(Tag, {
+    foreignKey: 'tagId'
+});
 
 sequelize.sync()
 //Img.drop()
