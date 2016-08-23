@@ -84,10 +84,11 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
   }">
   <head>
     <meta charset="utf-8">
-    <link href="/static/styles.css" rel="stylesheet" />
+    <!-- <link href="/static/styles.css" rel="stylesheet" /> -->
+    <script src="/static/style.js"></script>
     <meta name="viewport" content="initial-scale=1, width=device-width"/>
     <meta name="keywords" content=""/>
-    <title>Pinbot Image Server</title>
+    <title>List - Pinbot Image Server</title>
   </head>
   <body class="site-material_ext_publish section-resources noninitial-chapter color-light-blue qp-ui" data-qp-ui="{ 'Mask': {} }">
     <header>
@@ -135,7 +136,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <a class="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? '' : 'hide'}" href="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? parseInt(cp,10) + 1 : 'javascript:void(0);'}">下一页</a>
         </div>
     </footer>
-    <script src="/static/lib.js"></script>
+    <script src="/static/index.js"></script>
   </body>
 </html>
     `;

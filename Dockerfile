@@ -17,13 +17,14 @@ RUN apk update && apk upgrade && apk add --update openssl && apk add bash \
   && npm install -g n \
   && n latest \
   && npm install \
+  && npm install forever -g \
   && rm -rf /tmp/* \
   && rm -rf /root/.npm/ \
   && cp example_config.js config.js \
-  && mkdir db \
-  && mkdir uploads
+  && mkdir -p db \
+  && mkdir -p uploads
 
 # Expose port
 EXPOSE 8080
 
-CMD [ "node", "app.js" ]
+CMD [ "forever", "start", app.js" ]

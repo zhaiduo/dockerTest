@@ -7,9 +7,27 @@ const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
     //const koa = require('koa')
+const jwt = require('express-jwt')
+
+const webpack = require('webpack')
+const webpackDevMiddleware = require('webpack-dev-middleware')
+const webpackHotMiddleware = require('webpack-hot-middleware')
+const webpackDevConfig = require('./webpack.config.js')
+const compiler = webpack(webpackDevConfig)
 
 // App
 const app = express()
+
+// attach to the compiler & the server
+app.use(webpackDevMiddleware(compiler, {
+    // public path should be the same with webpack config
+    publicPath: webpackDevConfig.output.publicPath,
+    noInfo: true,
+    stats: {
+        colors: true
+    }
+}))
+app.use(webpackHotMiddleware(compiler))
 
 console.log("env", app.get('env'))
 const config = require('./config.js').setting[app.get('env')]
@@ -128,11 +146,29 @@ const User = sequelize.define('user', {
             type: Sequelize.STRING,
             allowNull: true
         }
-    })
-    //Img.belongsTo(User, {foreignKey: 'userId'});
+})
+Img.belongsTo(User, {foreignKey: 'userId'});
+
+const Tag = sequelize.define('tag', {
+    id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+    }
+})
+Img.belongsTo(Tag, {foreignKey: 'tagId'});
+
 sequelize.sync()
 //Img.drop()
 Img.sync()
+User.sync()
+Tag.sync()
 
 const eachPage = 10
 
@@ -160,27 +196,52 @@ app.use('/' + UPLOAD_DIR, express.static(UPLOAD_DIR))
 app.use('/static', express.static('static'))
 
 //http://www.infoq.com/cn/articles/quit-scheme-of-node-uncaughtexception-emergence
-/*process.on('uncaughtException', function (err) {
-  console.log('uncaughtException', err)
-})*/
-
-app.get('/', (req, res) => {
-    Img.findAndCountAll({
-        where: {},
-        offset: 0,
-        limit: 10,
-        order: [
-            ['id', 'DESC']
-        ]
-    }).then(result => {
-        //console.log('result.count', result.count);
-        //console.log('result.rows', result.rows);
-        let more = {
-            link: CORS_DOMAIN
-        };
-        res.send(tmpl.indexTmpl(result.count, 1, eachPage, result.rows, more))
-    })
+process.on('uncaughtException', function(err) {
+    console.log('uncaughtException', err)
 })
+
+const jwtTokenSecret = 'hello world !'
+
+/*app.use(jwt({
+    secret: jwtTokenSecret,
+    credentialsRequired: false
+}))
+
+app.use(function(err, req, res, next) {
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).send('invalid token...')
+    }
+})
+
+app.use(jwt({
+    secret: jwtTokenSecret
+}).unless({
+    path: ['/token']
+}));*/
+
+app.get('/',
+    /*jwt({
+        secret: jwtTokenSecret
+    }),*/
+    (req, res) => {
+        console.log("req.user", req.user)
+        //if (!req.user.admin) return res.sendStatus(401)
+        Img.findAndCountAll({
+            where: {},
+            offset: 0,
+            limit: 10,
+            order: [
+                ['id', 'DESC']
+            ]
+        }).then(result => {
+            //console.log('result.count', result.count);
+            //console.log('result.rows', result.rows);
+            let more = {
+                link: CORS_DOMAIN
+            };
+            res.send(tmpl.indexTmpl(result.count, 1, eachPage, result.rows, more))
+        })
+    })
 
 app.get('/:page', (req, res) => {
     let cp = 1

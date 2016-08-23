@@ -1,3 +1,9 @@
+console.log('hello there4', 1);
+/*if(module.hot) {
+    module.hot.accept();
+}*/
+
+
 function copyToClipboard(text) {
     console.log('copyToClipboard', text);
     if (window.clipboardData && window.clipboardData.setData) {

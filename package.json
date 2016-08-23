@@ -6,19 +6,38 @@
   "main": "app.js",
   "scripts": {
     "start": "NODE_ENV=production node app.js",
-    "develop": "NODE_ENV=development node app.js"
+    "develop": "NODE_ENV=development node app.js",
+    "eslint": "eslint app.js",
+    "build": "BUILD_DEV=0 ./node_modules/webpack/bin/webpack.js -p"
   },
   "dependencies": {
     "express": "^4.13.3",
+    "express-jwt": "^3.4.0",
     "formidable": "^1.0.17",
     "koa": "^1.2.1",
     "mkdirp": "^0.5.1",
     "sequelize": "^3.24.0",
-    "sqlite3": "^3.1.4"
+    "sqlite3": "^3.1.4",
+    "css-loader": "^0.23.1",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^2.22.0",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/zhaiduo/dockerTest"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.13.2",
+    "eslint": "^3.3.1",
+    "webpack": "^1.13.2",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.12.2"
+  }
 }
