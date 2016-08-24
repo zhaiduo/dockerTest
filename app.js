@@ -22,7 +22,7 @@ console.log("env", app.get('env'))
 const config = require('./config.js').setting[app.get('env')]
 console.log("config", config)
 
-if(app.get('env') === 'development'){
+if (app.get('env') === 'development') {
     // attach to the compiler & the server
     app.use(webpackDevMiddleware(compiler, {
         // public path should be the same with webpack config
@@ -95,41 +95,41 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
 //http://docs.sequelizejs.com/en/stable/docs/models-definition/
 const Img = sequelize.define('img', {
-    id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        validate: {
-            isEmail: true
+        id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        email: {
+            type: Sequelize.STRING,
+            allowNull: true,
+            validate: {
+                isEmail: true
+            }
+        },
+        name: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            unique: true
+        },
+        option: {
+            type: Sequelize.STRING,
+            allowNull: true
+        },
+        category: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        url: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                isUrl: true
+            }
         }
-    },
-    name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-    },
-    option: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    category: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    url: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        validate: {
-            isUrl: true
-        }
-    }
-})
-/*
+    })
+    /*
 Utils deprecated Non-object references property found. Support for that will be removed in version 4. Expected { references: { model: "value", key: "key" } } instead of { references: "value", referencesKey: "key" }
 */
 const User = sequelize.define('user', {
@@ -275,9 +275,10 @@ app.get('/:page', (req, res) => {
 })
 
 app.post('/' + UPLOAD_URL, (req, res) => {
-    let imgName;
+    let imgName, userId, userName, userEmail;
     // create an incoming form object
     let form = new formidable.IncomingForm()
+    let emailPattern = new RegExp("^([0-9a-z_\\.\\-]+)@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]+$", "i")
 
     // specify that we want to allow the user to upload multiple files in a single request
     form.multiples = true
@@ -296,28 +297,86 @@ app.post('/' + UPLOAD_URL, (req, res) => {
             }
         })
     })
+
     promise.then(result => {
         console.log('promise ok', result)
-        // every time a file has been uploaded successfully,
-        // rename it to it's orignal name
-        form.on('file', (field, file) => {
-            console.log('file', field, file.path, form.uploadDir, file.name);
-            imgName = `${IMG_PREFIX}${new Date().getTime()}` + '.png'
-            fs.rename(file.path, path.join(form.uploadDir, imgName))
+
+        let q2 = new Promise((resolve, reject) => {
+            // every time a file has been uploaded successfully,
+            // rename it to it's orignal name
+            form.on('file', (name, file) => {
+                if (name === 'file' && file.type && file.type.match(/^image\/(png|jpg|jpeg|gif)$/i)) {
+                    imgName = `${IMG_PREFIX}${new Date().getTime()}` + '.png'
+                    fs.rename(file.path, path.join(form.uploadDir, imgName))
+                    console.log('file', name, imgName);
+                }
+            })
+
+            // log any errors that occur
+            form.on('error', err => {
+                console.log('An error has occured: \n' + err)
+            })
+
+            // once all the files have been uploaded, send a response to the client
+            form.on('end', () => {
+                //console.log("end", 1);
+            })
+
+            // parse the incoming request containing the form data
+            // https://github.com/felixge/node-formidable
+            form.parse(req, (err, fields, files) => {
+                console.log("fields", fields);
+                if (fields && fields.email) {
+                    if (fields.email.match(emailPattern)) {
+                        userName = RegExp.$1
+                        //判断用户是否存在
+                        User.findOrCreate({
+                            where: {
+                                email: fields.email
+                            },
+                            defaults: {
+                                name: userName
+                            }
+                        }).then(user => {
+                            //console.log("user", user)
+                            if (user[0] && user[0].dataValues) {
+                                userId = user[0].dataValues.id
+                                userEmail = user[0].dataValues.email
+                            } else {
+                                userId = 1
+                                userEmail = fields.email
+                            }
+                            resolve(fields.email)
+                        }).catch(error => {
+                            reject({
+                                status: 'error',
+                                msg: 'user check error'
+                            })
+                        })
+                    } else {
+                        reject({
+                            status: 'error',
+                            msg: 'invalid email'
+                        })
+                    }
+                } else {
+                    reject({
+                        status: 'error',
+                        msg: 'email not found'
+                    })
+                }
+            })
         })
 
-        // log any errors that occur
-        form.on('error', err => {
-            console.log('An error has occured: \n' + err)
-        })
-
-        // once all the files have been uploaded, send a response to the client
-        form.on('end', () => {
+        q2.then(result => {
+            //console.log('promise fields ok', result, imgName, userEmail)
             let url = imgUrlPrefix(UPLOAD_DIR) + imgName
             Img.create({
                 name: imgName,
+                email: userEmail,
                 category: getDayDir(),
-                url: url
+                url: url,
+                userId: userId
             }).then(img => {
                 console.log('insert img', img.get('name'))
             })
@@ -327,24 +386,14 @@ app.post('/' + UPLOAD_URL, (req, res) => {
                 name: imgName,
                 category: getDayDir('-')
             }))
+        }).catch(error => {
+            console.log('promise2 error', error)
         })
 
-        // parse the incoming request containing the form data
-        // https://github.com/felixge/node-formidable
-        form.parse(req, (err, fields, files) => {
-            /*res.writeHead(200, {
-                'content-type': 'text/plain'
-            });
-            res.write('received upload:\n\n');
-            res.end(util.inspect({
-                fields: fields,
-                files: files
-            }));*/
-        })
-        //console.log('form', form);
     }).catch(error => {
         console.log('promise error', error)
     })
+
 
 })
 
