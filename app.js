@@ -169,15 +169,31 @@ const Tag = sequelize.define('tag', {
         unique: true
     }
 })
-Img.belongsTo(Tag, {
-    foreignKey: 'tagId'
+
+const ImgTags = sequelize.define('imgtags', {
+    id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true
+    }
+})
+
+Img.belongsToMany(Tag, {
+    through: ImgTags
+});
+Tag.belongsToMany(Img, {
+    through: ImgTags
 });
 
 sequelize.sync()
 //Img.drop()
 Img.sync()
 User.sync()
+Tag.drop()
 Tag.sync()
+ImgTags.drop()
+ImgTags.sync()
 
 const eachPage = 10
 
@@ -379,6 +395,34 @@ app.post('/' + UPLOAD_URL, (req, res) => {
                 userId: userId
             }).then(img => {
                 console.log('insert img', img.get('name'))
+
+                //测试tag
+                /*Tag.findOrCreate({
+                    where: {
+                        name: '截图'
+                    },
+                    defaults: {}
+                }).then(tag => {
+                    //console.log("user", user)
+                    let tagId = 1
+                    if (tag[0] && tag[0].dataValues) {
+                        tagId = tag[0].dataValues.id
+                    }
+                    //img.addTag(tag, {})
+                    console.log('insert tag', tagId, img.get('id'))
+                    ImgTags.findOrCreate({
+                        where: {
+                            tagId: tagId,
+                            imgId: img.get('id')
+                        },
+                        defaults: {}
+                    })
+                }).catch(error => {
+                    reject({
+                        status: 'error',
+                        msg: 'tag check error'
+                    })
+                })*/
             })
 
             res.end(JSON.stringify({
