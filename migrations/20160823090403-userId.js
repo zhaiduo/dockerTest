@@ -9,6 +9,7 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
+        return Promise.resolve()
         return queryInterface.addColumn(
             'imgs',
             'userId', {

@@ -1,4 +1,5 @@
 
+
 const htmlEscape = (str) => {
     if(typeof str !== 'string') return str;
     return str.replace(/&/g, '&amp;') // first!
@@ -96,6 +97,8 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="header-title">
         <span class="section-title"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
         <span class="chapter-title"></span>
+        <button class=" f-float-right"><i class="material-icons">登录</i></button>
+        <button class=" f-float-right"><i class="material-icons">注册</i></button>
       </div>
     </div>
   </header>
@@ -116,7 +119,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                         <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
                         <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
                         <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>] ($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
-                        <input type="button" name="copy_md_$${index+1}" class="copy-md" id="copy_md_$${index+1}" value="复制Markdown格式">
+                        <input type="button" name="copy_md_$${index+1}" class="copy-md" id="copy_md_$${index+1}" value="复制 Markdown 格式">
                         <br>
                     </div>
                 </li>
