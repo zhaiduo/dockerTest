@@ -1,4 +1,3 @@
-
 import {
     Func as pbFunc
 }
@@ -27,8 +26,20 @@ const registerEvnt = (event) => {
 
 const closeModalEvnt = (event) => {
     event.stopPropagation();
-    let trg = event.target.parentNode.parentNode.parentNode;
-    console.log("closeModalEvnt", event.target, trg)
+    let trg
+    if (event.target.getAttribute('class').match(/close\-modal/i)) {
+        trg = event.target.parentNode.parentNode;
+    } else if (event.target.parentNode.getAttribute('class').match(/close\-modal/i)) {
+        trg = event.target.parentNode.parentNode.parentNode;
+    } else if (event.target.getAttribute('class').match(/close/i)) {
+        for (let closeBtn of Array.from(document.querySelectorAll('.u-model .close'))) {
+            if (event.target === closeBtn) {
+                trg = closeBtn.parentNode.parentNode.parentNode;
+                break;
+            }
+        }
+    }
+    //console.log("closeModalEvnt", event.target, trg)
     if (trg) pbFunc.toggleModal(trg);
 };
 

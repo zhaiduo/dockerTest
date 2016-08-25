@@ -271,7 +271,7 @@ class Func {
             if (typeof name === 'string' && name.match(/^(\.|#)([0-9a-z_\-]+)$/i) && Array.isArray(cbs) && cbs[index] && typeof cbs[index] === 'function') {
                 let t = RegExp.$1;
                 let trgName = RegExp.$2;
-                console.log("forEach", name, index, trgName, cbs[index])
+                //console.log("forEach", name, index, trgName, cbs[index])
                 if (t === '.') {
                     Func.bindElems(document.getElementsByClassName(trgName), eventName, cbs[index])
                 } else {

@@ -37,11 +37,13 @@ pbFunc.bindElemsByNameArr([
     '.copy-md',
     '#link-login',
     '#link-register',
-    '.close-modal'
+    '.close-modal',
+    '.close'
 ], "click", [
     pbEvt.copyUrlEvnt,
     pbEvt.copyMdEvnt,
     pbEvt.loginEvnt,
     pbEvt.registerEvnt,
+    pbEvt.closeModalEvnt,
     pbEvt.closeModalEvnt
 ])

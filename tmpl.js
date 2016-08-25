@@ -158,7 +158,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
           </form>
         </div>
         <div class="actions">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent close">
             取消
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
@@ -190,7 +190,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
           </form>
         </div>
         <div class="actions">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent close">
             取消
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
