@@ -5,8 +5,8 @@
   "author": "Adam <lvyadong@hopperclouds.com>",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_ENV=production node app.js",
-    "develop": "NODE_ENV=development node app.js",
+    "start": "NODE_ENV=production supervisor -i client app",
+    "develop": "NODE_ENV=development supervisor -i client app",
     "eslint": "eslint app.js",
     "build": "BUILD_DEV=0 ./node_modules/webpack/bin/webpack.js -p"
   },
@@ -21,10 +21,12 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mkdirp": "^0.5.1",
+    "reload": "^1.0.1",
     "sequelize": "^3.24.0",
     "sequelize-cli": "^2.4.0",
     "sqlite3": "^3.1.4",
     "style-loader": "^0.13.1",
+    "supervisor": "^0.11.0",
     "url-loader": "^0.5.7"
   },
   "repository": {
@@ -39,6 +41,6 @@
     "eslint": "^3.3.1",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.6.1",
-    "webpack-hot-middleware": "^2.12.2"
+    "webpack-hot-middleware": "^2.4.1"
   }
 }

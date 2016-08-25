@@ -97,8 +97,8 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="header-title">
         <span class="section-title"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
         <span class="chapter-title"></span>
-        <button class=" f-float-right"><i class="material-icons">登录</i></button>
-        <button class=" f-float-right"><i class="material-icons">注册</i></button>
+        <a class="f-top-btn f-float-right" id="link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
+        <a class="f-top-btn f-float-right" id="link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
       </div>
     </div>
   </header>
@@ -139,6 +139,67 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <a class="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? '' : 'hide'}" href="$${1+parseInt(sum/eachPage,10) > parseInt(cp,10) ? parseInt(cp,10) + 1 : 'javascript:void(0);'}">下一页</a>
         </div>
     </footer>
+    <div class="qp-ui-mask-modal u-model u-model-login">
+      <dialog class="u-dialog u-dialog-login">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">登录</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="email">
+              <label class="mdl-textfield__label" for="email">电子邮箱</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="password" id="password">
+              <label class="mdl-textfield__label" for="password">密码</label>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+            登录
+          </button>
+        </div>
+      </dialog>
+    </div>
+    <div class="qp-ui-mask-modal u-model u-model-register">
+      <dialog class="u-dialog u-dialog-login">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">注册</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="email">
+              <label class="mdl-textfield__label" for="email">电子邮箱</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="password" id="password">
+              <label class="mdl-textfield__label" for="password">密码</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="password" id="password2">
+              <label class="mdl-textfield__label" for="password2">确认密码</label>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+            确定
+          </button>
+        </div>
+      </dialog>
+    </div>
+    <script src="/static/material.js"></script>
     <script src="/static/index.js"></script>
   </body>
 </html>

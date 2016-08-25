@@ -16,11 +16,15 @@ const webpackDevConfig = require('./webpack.config.js')
 const compiler = webpack(webpackDevConfig)
 
 // App
+const reload = require('reload')
+const http = require('http')
 const app = express()
+const server = http.createServer(app);
+reload(server, app);
 
 console.log("env", app.get('env'))
 const config = require('./config.js').setting[app.get('env')]
-console.log("config", config)
+//console.log("config", config)
 
 if (app.get('env') === 'development') {
     // attach to the compiler & the server
@@ -264,7 +268,8 @@ app.get('/',
             let more = {
                 link: CORS_DOMAIN
             };
-            res.send(tmpl.indexTmpl(result.count, 1, eachPage, result.rows, more))
+            let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
+            res.send(tmpl.indexTmpl(result.count, 1, eachPage, result.rows, more) + reloadScriptHtml)
         })
     })
 
@@ -441,5 +446,6 @@ app.post('/' + UPLOAD_URL, (req, res) => {
 
 })
 
-app.listen(PORT)
-console.log('Running on ' + imgUrlPrefix())
+server.listen(PORT, function() {
+    console.log('Running on ' + imgUrlPrefix())
+})

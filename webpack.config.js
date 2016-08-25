@@ -14,6 +14,10 @@ var devConfig = {
             './src/style.js',
             './src/styles.less',
             hotMiddlewareScript
+        ],
+        material: [
+            './src/material.js',
+            hotMiddlewareScript
         ]
     },
     output: {
