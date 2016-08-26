@@ -92,7 +92,7 @@ const loginSubmitEvnt = (event) => {
             method: 'POST',
             data: {
                 //csrfmiddlewaretoken: "oUWaNjDcLuOO5dIhrhYFw1dxHZoWFndb",
-                password: password,
+                password: pbFunc.MD5(email + password),
                 email: email
             }
         });
@@ -120,7 +120,7 @@ const registerSubmitEvnt = (event) => {
             method: 'POST',
             data: {
                 //csrfmiddlewaretoken: "oUWaNjDcLuOO5dIhrhYFw1dxHZoWFndb",
-                password: password,
+                password: pbFunc.MD5(email + password),
                 email: email
             }
         });

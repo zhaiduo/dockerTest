@@ -13,7 +13,8 @@ module.exports = {
             'users',
             'password', {
                 type: Sequelize.STRING,
-                allowNull: false,
+                allowNull: true,
+                defaultValue: null
             }
         )
     },

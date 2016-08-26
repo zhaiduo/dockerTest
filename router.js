@@ -4,6 +4,7 @@ const express = require('express');
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
+const jwt = require('express-jwt');
 const app = express();
 const formidable = require('formidable')
 const config = require('./config.js').setting[app.get('env')];
@@ -60,6 +61,17 @@ class Controller {
 
 class Router {
     constructor(app) {
+        const userLoginCheckArr = [{
+            name: 'email',
+            required: true,
+            reg: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i"),
+            msg: '无效邮箱地址！'
+        }, {
+            name: 'password',
+            required: true,
+            reg: new RegExp("^[\\S]{6,}$", "i"),
+            msg: '请输入至少6位密码！'
+        }];
         // Add headers
         app.use((req, res, next) => {
 
@@ -299,80 +311,40 @@ class Router {
         })*/
 
         app.post('/login', (req, res) => {
-            let form = new formidable.IncomingForm();
-            let subPromise = new Promise((resolve, reject) => {
 
-                //console.log('req', req);
-                form.parse(req, function(err, fields, files) {
-                    //console.log("form.parse", 1);
-                    resolve(fields, err)
-                });
+            lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
+                User.findOne({
+                    where: {
+                        name: result.name,
+                        password: result.password
+                    }
+                }).then(function(user) {
+                    if (user) {
+                        lib.okRes(res, '登录成功！', {}, {
 
-                // log any errors that occur
-                form.on('error', err => {
-                    //console.log('An error has occured: \n' + err)
-                    reject({}, err)
-                })
-
-                // once all the files have been uploaded, send a response to the client
-                form.on('end', () => {
-                    //console.log("end", 1);
-                })
-            });
-
-            subPromise.then((result, err) => {
-                //console.log('subPromise err', err)
-                if (err) {
-                    lib.serverRes(res, lib.statusJsonRes('提交失败！', {
-                        status: 'error',
-                        more: {}
-                    }), {
-                        headers: {}
-                    });
-                    return false;
-                }
-                //console.log("fields", result);
-                const fields = result;
-                if (fields) {
-                    if (fields.email && fields.email.match(/^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$/i)) {
-                        lib.serverRes(res, lib.statusJsonRes('登录成功！', {
-                            status: 'ok',
-                            more: {}
-                        }), {
-                            headers: {}
                         });
                     } else {
-                        lib.serverRes(res, lib.statusJsonRes('无效邮箱地址！', {
-                            status: 'error',
-                            more: {
-                                form: 'email'
-                            }
-                        }), {
-                            headers: {}
-                        });
+                        lib.errRes(res, '登录失败！');
                     }
-                } else {
-                    lib.serverRes(res, lib.statusJsonRes('无效提交内容！', {
-                        status: 'error',
-                        more: {}
-                    }), {
-                        headers: {}
-                    });
-                }
-            }).catch(error => {
-                lib.serverRes(res, lib.statusJsonRes('提交失败！', {
-                    status: 'error',
-                    more: {}
-                }), {
-                    headers: {}
-                });
-            })
-
+                })
+            });
         })
 
         app.post('/register', (req, res) => {
-            let form = new formidable.IncomingForm();
-            console.log("form", form);
+            lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
+                User.findOrCreate({
+                    where: {
+                        name: result.name,
+                        password: result.password
+                    }
+                }).then(function(user, created) {
+                    if (created) {
+                        lib.okRes(res, '注册成功！');
+                    } else {
+                        lib.errRes(res, '注册失败！');
+                    }
+                })
+            });
         })
 
         app.post('/', (req, res) => {
