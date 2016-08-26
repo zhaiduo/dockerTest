@@ -131,15 +131,19 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
               <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="email" value="">
               <label class="mdl-textfield__label" for="email">电子邮箱</label>
               <span class="mdl-textfield__error">请输入输入电子邮箱地址！</span>
+              <span class="mdl-textfield__res"></span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="password" value="">
               <label class="mdl-textfield__label" for="password">密码</label>
               <span class="mdl-textfield__error">请输入6位以上密码！</span>
+              <span class="mdl-textfield__res"></span>
             </div>
           </form>
         </div>
         <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner"></div>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
             取消
           </button>
@@ -147,6 +151,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
             登录
           </button>
           <p><br><br>还没注册？点击<a href="javascript:void(0);" class=" link-register">加入</a>。</p>
+
         </div>
       </dialog>
     </div>
@@ -162,26 +167,32 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
               <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="reg_email" value="">
               <label class="mdl-textfield__label" for="reg_email">电子邮箱</label>
               <span class="mdl-textfield__error">请输入输入电子邮箱地址！</span>
+              <span class="mdl-textfield__res"></span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="reg_password" value="">
               <label class="mdl-textfield__label" for="reg_password">密码</label>
               <span class="mdl-textfield__error">请输入6位以上密码！</span>
+              <span class="mdl-textfield__res"></span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="reg_password2" value="">
               <label class="mdl-textfield__label" for="reg_password2">确认密码</label>
               <span class="mdl-textfield__error">请确认密码正确！</span>
+              <span class="mdl-textfield__res"></span>
             </div>
           </form>
         </div>
         <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner "></div>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
             取消
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-register">
             确定
           </button>
+
 
         </div>
       </dialog>

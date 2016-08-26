@@ -417,26 +417,50 @@ class Func {
         }
     }
 
+    static toggleClass(trg, className, isNotToggle) {
+        let _isNotToggle = (typeof isNotToggle === 'boolean') ? isNotToggle : null;
+        let currentClassnames = trg.getAttribute('class');
+        let _className = className.replace(/([\-])/ig, "\\$1");
+        //console.log("toggleClass", _className, currentClassnames)
+        let re = new RegExp("^(.*) " + _className + " (.*)$", "i");
+        if (_isNotToggle !== null) {
+            //console.log("toggleClass", _isNotToggle, _className, currentClassnames)
+            if (_isNotToggle === true) {
+                //add class
+                if (!currentClassnames.match(re)) {
+                    trg.setAttribute('class', currentClassnames + ' ' + className + ' ');
+                }
+            } else {
+                //remove class
+                if (currentClassnames.match(re)) {
+                    trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+                }
+            }
+        } else {
+            if (currentClassnames.match(re)) {
+                trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+            } else {
+                trg.setAttribute('class', currentClassnames + ' ' + className + ' ');
+            }
+        }
+    }
+
     static toggleModal(trg, isShow) {
         let _show = (typeof isShow === 'boolean') ? isShow : null;
         if (trg && trg.getAttribute('class')) {
             var currentClassnames = trg.getAttribute('class');
             if (_show !== null) {
                 if (_show === true) {
-                    if (!currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
-                        trg.setAttribute('class', currentClassnames + ' qp-ui-mask-visible');
+                    if (!currentClassnames.match(/^(.*) qp\-ui\-mask\-visible (.*)$/i)) {
+                        Func.toggleClass(trg, 'qp-ui-mask-visible', true);
                     }
                 } else if (_show === false) {
-                    if (currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
-                        trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+                    if (currentClassnames.match(/^(.*) qp\-ui\-mask\-visible (.*)$/i)) {
+                        Func.toggleClass(trg, 'qp-ui-mask-visible', false);
                     }
                 }
             } else {
-                if (currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
-                    trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
-                } else {
-                    trg.setAttribute('class', currentClassnames + ' qp-ui-mask-visible');
-                }
+                Func.toggleClass(trg, 'qp-ui-mask-visible');
             }
         }
     }

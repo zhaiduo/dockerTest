@@ -4535,6 +4535,28 @@ h3 {
     }
 }
 
+/* 后端返回错误样式 */
+.mdl-textfield.is-responsed .mdl-textfield__res {
+    visibility: visible;
+}
+.mdl-textfield__res {
+    color: #d50000;
+    position: absolute;
+    font-size: 12px;
+    margin-top: 3px;
+    visibility: hidden;
+    display: block;
+}
+.mdl-textfield--floating-label.is-responsed .mdl-textfield__label {
+    color: #d50000;
+}
+.mdl-textfield.is-responsed .mdl-textfield__input {
+    border-color: #d50000;
+    box-shadow: none;
+    outline: none;
+}
+
+
 .qp-ui-mask-modal {
     .u-dialog {
         display: inline-block;
@@ -4573,6 +4595,13 @@ h3 {
         }
         .is-invalid {
             /* 出错样式 */
+        }
+        .actions{
+            &.is-responsed{
+                .mdl-form__res{
+                    color: #d50000;
+                }
+            }
         }
     }
     form {

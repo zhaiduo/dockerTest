@@ -1,5 +1,12 @@
 #Dockerfile Test
 
+##如何启动？
+> npm install
+> npm install suppervisor
+> ./doMigrate.sh
+> npm run develp (本地)
+> npm run start (线上)
+
 ##How to use
 
 安装好 `Docker` 环境后，直接运行我们构建好的容器即可：
