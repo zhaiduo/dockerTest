@@ -85,7 +85,11 @@ class myFetch {
                 //console.log('onabort', e);
                 reject(e);
             };
-            xhr.send(fd);
+            try {
+                xhr.send(fd);
+            } catch (e) {
+                //console.log('send err', e);
+            }
         })
     }
 

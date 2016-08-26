@@ -1,4 +1,5 @@
 
+const lib = require('./lib.js')
 
 const htmlEscape = (str) => {
     if(typeof str !== 'string') return str;
@@ -46,30 +47,9 @@ const html = (literalSections, ...substs) => {
     return result;
 };
 
-const getDateObj = (t) => {
-    let dt;
-    if (t !== undefined) {
-        if (typeof t === 'string' || typeof t === 'number') {
-            dt = new Date(t);
-        } else {
-            dt = new Date();
-        }
-    } else {
-        dt = new Date();
-    }
-    return {
-        y: dt.getFullYear(),
-        m: dt.getMonth() + 1,
-        d: dt.getDate(),
-        h: dt.getHours(),
-        i: dt.getMinutes(),
-        s: dt.getSeconds()
-    };
-}
-
 const publisDate = name => {
   if(name.match(/([0-9]+)\.png$/i)){
-    let dt = getDateObj(parseInt(RegExp.$1, 10))
+    let dt = lib.getDateObj(parseInt(RegExp.$1, 10))
     return `发布于：${dt.y}年${dt.m}月${dt.d}日 ${dt.h}时:${dt.i}分:${dt.s}秒`;
   }else{
     return name
@@ -97,8 +77,8 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="header-title">
         <span class="section-title"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
         <span class="chapter-title"></span>
-        <a class="f-top-btn f-float-right" id="link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
-        <a class="f-top-btn f-float-right" id="link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
+        <a class="f-top-btn f-float-right link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
+        <a class="f-top-btn f-float-right link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
       </div>
     </div>
   </header>
@@ -148,22 +128,25 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" id="email">
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="email" value="">
               <label class="mdl-textfield__label" for="email">电子邮箱</label>
+              <span class="mdl-textfield__error">请输入输入电子邮箱地址！</span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="password" id="password">
+              <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="password" value="">
               <label class="mdl-textfield__label" for="password">密码</label>
+              <span class="mdl-textfield__error">请输入6位以上密码！</span>
             </div>
           </form>
         </div>
         <div class="actions">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent close">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
             取消
           </button>
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-login">
             登录
           </button>
+          <p><br><br>还没注册？点击<a href="javascript:void(0);" class=" link-register">加入</a>。</p>
         </div>
       </dialog>
     </div>
@@ -172,30 +155,34 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <span class="close-modal">
           <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
         </span>
-        <h3 class="title">注册</h3>
+        <h3 class="title">注册 <span>已经注册？点击<a href="javascript:void(0);" class=" link-login">登录</a>。</span></h3>
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" id="email">
-              <label class="mdl-textfield__label" for="email">电子邮箱</label>
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="reg_email" value="">
+              <label class="mdl-textfield__label" for="reg_email">电子邮箱</label>
+              <span class="mdl-textfield__error">请输入输入电子邮箱地址！</span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="password" id="password">
-              <label class="mdl-textfield__label" for="password">密码</label>
+              <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="reg_password" value="">
+              <label class="mdl-textfield__label" for="reg_password">密码</label>
+              <span class="mdl-textfield__error">请输入6位以上密码！</span>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="password" id="password2">
-              <label class="mdl-textfield__label" for="password2">确认密码</label>
+              <input class="mdl-textfield__input" type="password" pattern="^.{6,}$" id="reg_password2" value="">
+              <label class="mdl-textfield__label" for="reg_password2">确认密码</label>
+              <span class="mdl-textfield__error">请确认密码正确！</span>
             </div>
           </form>
         </div>
         <div class="actions">
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent close">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
             取消
           </button>
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-register">
             确定
           </button>
+
         </div>
       </dialog>
     </div>

@@ -4430,10 +4430,11 @@ li input[type="button"]:hover {
 .box > a img {
     /*margin: 0 auto;*/
     display: inline-block;
-    max-height: 300px;
     max-width: 99%;
+    max-height: 300px;
 
     line-height: 300px;
+
     vertical-align: middle;
 }
 .box > a .center-helper {
@@ -4443,9 +4444,9 @@ li input[type="button"]:hover {
     height: 300px;
 
     line-height: 300px;
-
     /*    display: inline-block;
     height: 100%;*/
+
     vertical-align: middle;
 }
 .info {
@@ -4526,6 +4527,14 @@ a {
     }
 }
 
+h3 {
+    > span {
+        display: inline-block;
+
+        font-size: 14px;;
+    }
+}
+
 .qp-ui-mask-modal {
     .u-dialog {
         display: inline-block;
@@ -4538,6 +4547,9 @@ a {
             left: 10px;
 
             float: right;
+            > button {
+                color: #ccc;
+            }
         }
         button {
             margin: 0 6px;
@@ -4553,6 +4565,14 @@ a {
             top: 0;
 
             font-size: 16px;
+        }
+        .is-dirty .mdl-textfield__label {
+            top: 0;
+
+            font-size: 16px;
+        }
+        .is-invalid {
+            /* 出错样式 */
         }
     }
     form {

@@ -229,26 +229,45 @@ class Func {
         }
     }
 
-    static toggleModal(trg) {
+    static toggleModal(trg, isShow) {
+        let _show = (typeof isShow === 'boolean') ? isShow : null;
         if (trg && trg.getAttribute('class')) {
             var currentClassnames = trg.getAttribute('class');
-            if (currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
-                trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+            if (_show !== null) {
+                if (_show === true) {
+                    if (!currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
+                        trg.setAttribute('class', currentClassnames + ' qp-ui-mask-visible');
+                    }
+                } else if (_show === false) {
+                    if (currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
+                        trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+                    }
+                }
             } else {
-                trg.setAttribute('class', currentClassnames + ' qp-ui-mask-visible');
+                if (currentClassnames.match(/^(.*)qp\-ui\-mask\-visible(.*)$/i)) {
+                    trg.setAttribute('class', RegExp.$1 + ' ' + RegExp.$2);
+                } else {
+                    trg.setAttribute('class', currentClassnames + ' qp-ui-mask-visible');
+                }
             }
         }
     }
 
+    static elemsAction(elems, cb) {
+        let i = elems.length;
+        while (i--) {
+            if (typeof cb === 'function') cb(elems[i])
+        }
+    }
+
     static bindElems(elems, eventName, cb) {
-        console.log("bindElems", elems.constructor);
+        //console.log("bindElems", elems.constructor);
         if (elems instanceof HTMLCollection) {
-            let i = elems.length;
-            while (i--) {
+            Func.elemsAction(elems, (elem) => {
                 if (typeof cb === 'function') {
-                    elems[i].addEventListener(eventName, cb.bind(this));
+                    elem.addEventListener(eventName, cb.bind(this));
                 }
-            }
+            })
         } else if (elems instanceof HTMLElement) {
             if (typeof cb === 'function') elems.addEventListener(eventName, cb.bind(this));
         }
@@ -290,7 +309,7 @@ class Func {
                 id = RegExp.$2;
             }
             if (document.getElementById('data_' + trg + '_' + id)) {
-                pbFunc.copyToClipboard(document.getElementById('data_' + trg + '_' + id).innerText);
+                Func.copyToClipboard(document.getElementById('data_' + trg + '_' + id).innerText);
             }
         }
     };
