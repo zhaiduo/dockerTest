@@ -64,6 +64,11 @@
 More: https://yeasy.gitbooks.io/docker_practice/content/introduction/
 
 
+##目的
+1. 了解熟悉ES6/Webpack开发流程
+2. 了解ES6原生开发优缺点
+3. 体会和React/Angular2的区别
+
 
 
 

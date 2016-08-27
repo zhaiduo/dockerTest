@@ -82,92 +82,146 @@ const submitEvnt = (event, cb, ...args) => {
     }, null)
 };
 
+const cancelTextfieldAlertEvnt = (event) => {
+    evtHandler(event, (event, ...args) => {
+        let textfieldTrg = event.target.parentNode;
+        pbFunc.toggleClass(textfieldTrg, 'is-responsed', false);
+        textfieldTrg.querySelector(".mdl-textfield__res").innerText = '';
+    }, null)
+};
+
+const textfieldErrHandler = (id, textfieldTrg, isNotValid, errMsg) => {
+    if (isNotValid) {
+        pbFunc.toggleClass(textfieldTrg, 'is-responsed', true);
+        textfieldTrg.querySelector(".mdl-textfield__res").innerText = errMsg;
+    } else {
+        pbFunc.toggleClass(textfieldTrg, 'is-responsed', false);
+        textfieldTrg.querySelector(".mdl-textfield__res").innerText = '';
+    }
+    //on focus: 取消错误提示
+    pbFunc.bindElemsByNameArr([
+        id
+    ], "focus", [
+        cancelTextfieldAlertEvnt
+    ])
+};
+
+const textfieldErrHandlerByRules = (modalTrg, rules) => {
+    let isNotValid, textfieldTrg;
+    //前端错误处理
+    for (let ff of rules) {
+        if (ff.required === true) {
+            isNotValid = (!modalTrg.querySelector("#" + ff.name).value.match(ff.reg)) ? true : false;
+            textfieldTrg = document.getElementById(ff.name).parentNode;
+            textfieldErrHandler("#" + ff.name, textfieldTrg, isNotValid, ff.msg);
+            if (isNotValid) break;
+        }
+    }
+    return (isNotValid) ? false : true;
+};
+
+const formSubmitResHandler = (modalTrg, submitBtnCssName, reqUrl, postData, cbOk, cbErr) => {
+    //后端响应处理
+    let actionsTrg = modalTrg.querySelector(".actions");
+    //console.log("email", email, password)
+    pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
+    pbFunc.toggleClass(actionsTrg.querySelector(submitBtnCssName), 'disabled', true);
+    let req = new myFetch(reqUrl, {
+        method: 'POST',
+        data: postData
+    });
+    if (req) req.then(result => {
+        pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', false);
+        pbFunc.toggleClass(actionsTrg.querySelector(submitBtnCssName), 'disabled', false);
+        console.log('post then', result);
+        if (result.status && result.status === 'ok') {
+            pbFunc.toggleClass(actionsTrg, 'is-responsed', false);
+            actionsTrg.querySelector(".mdl-form__res").innerText = '';
+            if (typeof cbOk === 'function') cbOk(result);
+        } else {
+            pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
+            actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
+            if (typeof cbOk === 'function') cbErr(result);
+        }
+
+    }).catch(result => {
+        pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
+        pbFunc.toggleClass(actionsTrg.querySelector(submitBtnCssName), 'disabled', false);
+        pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
+        actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
+        if (typeof cbOk === 'function') cbErr(result);
+    })
+};
+
+const userLoginCheckArr = [{
+    name: 'email',
+    required: true,
+    reg: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i"),
+    msg: '无效邮箱地址！'
+}, {
+    name: 'password',
+    required: true,
+    reg: new RegExp("^[\\S]{6,}$", "i"),
+    msg: '请输入至少6位密码！'
+}];
+
 const loginSubmitEvnt = (event) => {
     submitEvnt(event, (event, ...args) => {
         console.log('loginSubmitEvnt', event, args);
-        let email = args[0].querySelector("#email").value;
-        let password = args[0].querySelector("#password").value;
-        let actionsTrg = args[0].querySelector(".actions")
-        //console.log("email", email, password)
 
-        pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
-        //
-        pbFunc.toggleClass(actionsTrg.querySelector(".j-login"), 'disabled', true);
-        let req = new myFetch('/login', {
-            method: 'POST',
-            data: {
-                //csrfmiddlewaretoken: "oUWaNjDcLuOO5dIhrhYFw1dxHZoWFndb",
-                password: pbFunc.MD5(email + password),
-                email: email
-            }
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], userLoginCheckArr);
+        if (!formChkOk) return false;
+
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-login", '/login', {
+            password: pbFunc.MD5(args[0].querySelector("#email").value + args[0].querySelector("#password").value),
+            email: args[0].querySelector("#email").value
+        }, (result) => {
+            console.log('login ok');
+        }, (result) => {
+            console.log('login failed');
         });
 
-        if (req) req.then(result => {
-            pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', false);
-            pbFunc.toggleClass(actionsTrg.querySelector(".j-login"), 'disabled', false);
-            console.log('then', result);
-            //if (trg) pbFunc.toggleModal(trg, false);
-            if (result.status && result.status === 'ok') {
-                pbFunc.toggleClass(actionsTrg, 'is-responsed', false);
-                actionsTrg.querySelector(".mdl-form__res").innerText = '';
-            } else {
-                pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
-                actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
-            }
-
-        }).catch(result => {
-            pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
-            pbFunc.toggleClass(actionsTrg.querySelector(".j-login"), 'disabled', false);
-            pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
-            actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
-        })
-    }, null)
-    /*event.stopPropagation();
-    let modalTrg
-    if (event.target.parentNode.getAttribute('class').match(/actions/i)) {
-        modalTrg = event.target.parentNode.parentNode.parentNode;
-
-    }*/
+    }, null);
 };
+
+const userRegCheckArr = [{
+    name: 'reg_email',
+    required: true,
+    reg: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i"),
+    msg: '无效邮箱地址！'
+}, {
+    name: 'reg_password',
+    required: true,
+    reg: new RegExp("^[\\S]{6,}$", "i"),
+    msg: '请输入至少6位密码！'
+}];
 
 const registerSubmitEvnt = (event) => {
     submitEvnt(event, (event, ...args) => {
-        let email = args[0].querySelector("#reg_email").value;
+
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], userRegCheckArr);
+        if (!formChkOk) return false;
+
         let password = args[0].querySelector("#reg_password").value;
         let password2 = args[0].querySelector("#reg_password2").value;
-        let trg = document.getElementById('reg_password2').parentNode;
-        let actionsTrg = args[0].querySelector(".actions")
+        let textfieldTrg = document.getElementById('reg_password2').parentNode;
+        let isNotValid = (password !== password2) ? true : false;
+        textfieldErrHandler("#reg_password2", textfieldTrg, isNotValid, '请确认密码正确！');
+        if (isNotValid) return false;
 
-        if (password !== password2) {
-            pbFunc.toggleClass(trg, 'is-responsed', true);
-            trg.querySelector(".mdl-textfield__res").innerText = '请确认密码正确！';
-            return false;
-        } else {
-            pbFunc.toggleClass(trg, 'is-responsed', false);
-            trg.querySelector(".mdl-textfield__res").innerText = '';
-        }
-
-        pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
-        pbFunc.toggleClass(actionsTrg.querySelector(".j-register"), 'disabled', true);
-        //console.log("email", email, password)
-        let req = new myFetch('/register', {
-            method: 'POST',
-            data: {
-                //csrfmiddlewaretoken: "oUWaNjDcLuOO5dIhrhYFw1dxHZoWFndb",
-                password: pbFunc.MD5(email + password),
-                email: email
-            }
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-register", '/register', {
+            password: pbFunc.MD5(args[0].querySelector("#reg_email").value + args[0].querySelector("#reg_password").value),
+            email: args[0].querySelector("#reg_email").value
+        }, (result) => {
+            console.log('reg ok');
+        }, (result) => {
+            console.log('reg failed');
         });
-        console.log('req', req);
-        if (req) req.then(result => {
-            pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
-            pbFunc.toggleClass(actionsTrg.querySelector(".j-register"), 'disabled', false);
-            console.log('then', result);
-        }).catch(result => {
-            pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
-            console.log('catch', result);
-            pbFunc.toggleClass(actionsTrg.querySelector(".j-register"), 'disabled', false);
-        })
+
     }, null)
 };
 

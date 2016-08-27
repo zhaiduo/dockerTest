@@ -335,6 +335,7 @@ class Router {
                 User.findOrCreate({
                     where: {
                         name: result.name,
+                        email: result.email,
                         password: result.password
                     }
                 }).then(function(user, created) {
