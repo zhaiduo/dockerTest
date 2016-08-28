@@ -156,7 +156,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
       </dialog>
     </div>
     <div class="qp-ui-mask-modal u-model u-model-register">
-      <dialog class="u-dialog u-dialog-login">
+      <dialog class="u-dialog u-dialog-register">
         <span class="close-modal">
           <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
         </span>

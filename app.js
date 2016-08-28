@@ -2,6 +2,7 @@
 'use strict'
 
 const express = require('express');
+const cookieParser = require('cookie-parser');
 //const koa = require('koa');
 //const jwt = require('express-jwt');
 
@@ -15,6 +16,7 @@ const compiler = webpack(webpackDevConfig);
 const reload = require('reload');
 const http = require('http');
 const app = express();
+app.use(cookieParser());
 const server = http.createServer(app);
 reload(server, app);
 

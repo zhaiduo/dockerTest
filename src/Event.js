@@ -167,7 +167,7 @@ const userLoginCheckArr = [{
 
 const loginSubmitEvnt = (event) => {
     submitEvnt(event, (event, ...args) => {
-        console.log('loginSubmitEvnt', event, args);
+        //console.log('loginSubmitEvnt', event, args);
 
         //前端错误处理
         let formChkOk = textfieldErrHandlerByRules(args[0], userLoginCheckArr);
@@ -179,7 +179,14 @@ const loginSubmitEvnt = (event) => {
             email: args[0].querySelector("#email").value
         }, (result) => {
             console.log('login ok');
+            pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            //获取email
+
+            //刷新界面
+            //展示管理
+            //展示标签
         }, (result) => {
+            args[0].querySelector("#password").value = '';
             console.log('login failed');
         });
 
@@ -218,8 +225,12 @@ const registerSubmitEvnt = (event) => {
             email: args[0].querySelector("#reg_email").value
         }, (result) => {
             console.log('reg ok');
+            pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            document.querySelector('.header-wrapper .link-login').click();
         }, (result) => {
             console.log('reg failed');
+            args[0].querySelector("#reg_password").value = '';
+            args[0].querySelector("#reg_password2").value = '';
         });
 
     }, null)

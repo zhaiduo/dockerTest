@@ -29,7 +29,7 @@ const ImgTags = db.ImgTags
 
 const tmpl = require('./tmpl.js');
 const lib = require('./lib.js');
-const eachPage = 10
+const eachPage = 1
 
 class Controller {
     constructor() {
@@ -95,9 +95,9 @@ class Router {
         app.use('/static', express.static('static'))
 
         //http://www.infoq.com/cn/articles/quit-scheme-of-node-uncaughtexception-emergence
-        /*process.on('uncaughtException', function(err) {
+        process.on('uncaughtException', function(err) {
             console.log('uncaughtException', err)
-        })*/
+        })
 
         const jwtTokenSecret = 'hello world !'
 
@@ -123,7 +123,8 @@ class Router {
                 secret: jwtTokenSecret
             }),*/
             (req, res) => {
-                console.log("req.user", req.user)
+                //console.log("req.user", req.user)
+                //console.log('Cookies: ', req.cookies);
                 //if (!req.user.admin) return res.sendStatus(401)
                 Controller.pageList(res, Img, tmpl.indexTmpl, {
                     cp: 1,
@@ -140,6 +141,8 @@ class Router {
             })
 
         app.get('/:page', (req, res) => {
+
+            //console.log('Cookies: ', req.cookies);
             let cp = 1
             if (typeof req.params.page === 'string' && req.params.page.match(/^[0-9]+$/i)) cp = req.params.page
             let offset = eachPage * (parseInt(cp, 10) - 1)
@@ -311,19 +314,22 @@ class Router {
         })*/
 
         app.post('/login', (req, res) => {
+            //console.log('Cookies: ', req.cookies)
+            console.log("/login", req);
 
             lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
+                console.log("login", result)
                 User.findOne({
                     where: {
-                        name: result.name,
+                        email: result.email,
                         password: result.password
                     }
                 }).then(function(user) {
+                    console.log("findOne", user)
                     if (user) {
-                        lib.okRes(res, '登录成功！', {}, {
-
-                        });
+                        lib.okRes(res, '登录成功！', {}, lib.setCookie('email', result.email, 365));
                     } else {
+                        //lib.setCookie('email', 'test' + result.email, 365)
                         lib.errRes(res, '登录失败！');
                     }
                 })
@@ -332,19 +338,41 @@ class Router {
 
         app.post('/register', (req, res) => {
             lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
-                User.findOrCreate({
+                User.findOne({
+                    where: {
+                        email: result.email,
+                        password: result.password
+                    }
+                }).then(function(user) {
+                    console.log("findOne", user)
+                    if (user) {
+                        lib.okRes(res, '用户已存在，注册失败！', {}, {
+
+                        });
+                    } else {
+                        //lib.errRes(res, '注册失败！');
+                        User.create({
+                            email: result.email,
+                            password: result.password
+                        }).then(user => {
+                            lib.okRes(res, '注册成功！');
+                        })
+                    }
+                })
+                /*User.findOrCreate({
                     where: {
                         name: result.name,
                         email: result.email,
                         password: result.password
                     }
                 }).then(function(user, created) {
+                    console.log("findOrCreate", user, created)
                     if (created) {
                         lib.okRes(res, '注册成功！');
                     } else {
                         lib.errRes(res, '注册失败！');
                     }
-                })
+                })*/
             });
         })
 

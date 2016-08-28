@@ -67,9 +67,9 @@ const serverRes = (res, data, {
     }
     resHeaders['content-type'] = contentType;
     for (let key in headers) {
-        if (resHeaders.hasOwnProperty(key)) resHeaders[key] = headers[key];
+        if (headers.hasOwnProperty(key)) resHeaders[key] = headers[key];
     }
-    //console.log("serverRes", resHeaders, resData, data)
+    //console.log("serverRes", resHeaders, resData, headers)
     res.writeHead(code, resHeaders);
     res.end(resData);
 }
@@ -89,11 +89,13 @@ const statusJsonRes = (msg, {
     return JSON.stringify(res);
 };
 
-const errRes = (res, msg, data = {}) => {
+const errRes = (res, msg, data = {}, headers = {}) => {
     serverRes(res, statusJsonRes(msg, {
         status: 'error',
         more: data
-    }));
+    }), {
+        headers: headers
+    });
 };
 
 const okRes = (res, msg, data = {}, headers = {}) => {
@@ -168,6 +170,26 @@ const postDataCheckAction = (req, res, chkRules, cb) => {
     });
 };
 
+const setCookie = (key, value, day) => {
+    let ckTime = (day !== undefined && typeof day === 'number') ? parseInt(day, 10) * 86400000 : 86400000;
+    let expires = new Date();
+    expires.setTime(expires.getTime() + ckTime);
+    //document.cookie = key + '=' + value + ';expires=' + expires.toUTCString() + ';path=/;';
+    return {
+        'Set-Cookie': key + '=' + value + ';expires=' + expires.toUTCString() + ';path=/;'
+    };
+};
+
+const delCookie = (key) => {
+    let expires = new Date();
+    expires.setTime(expires.getTime() - 86400);
+    //document.cookie = key + '=;expires=' + expires.toUTCString() + ';path=/;';
+    return {
+        'Set-Cookie': key + '=;expires=' + expires.toUTCString() + ';path=/;'
+    };
+};
+
+
 exports.getDateObj = getDateObj
 exports.getDayDir = getDayDir
 exports.imgUrlPrefix = imgUrlPrefix
@@ -177,3 +199,6 @@ exports.errRes = errRes
 exports.okRes = okRes
 exports.formPostAction = formPostAction
 exports.postDataCheckAction = postDataCheckAction
+exports.setCookie = setCookie
+exports.delCookie = delCookie
+
