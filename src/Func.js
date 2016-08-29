@@ -524,7 +524,57 @@ class Func {
                 Func.copyToClipboard(document.getElementById('data_' + trg + '_' + id).innerText);
             }
         }
-    };
+    }
+
+    //更新表单元素反馈样式／内容（错误信息、样式等）
+    static resetFormElem(elemTrg, isShow, text, cssName) {
+        let _cssName = (typeof cssName === 'string') ? cssName : 'is-responsed';
+        Func.toggleClass(elemTrg, _cssName, isShow);
+        let name = (_cssName === 'is-responsed') ? 'res' : 'error';
+        name = (_cssName === 'is-success') ? 'res' : 'error';
+        if (elemTrg.querySelector(".mdl-textfield__" + name)) {
+            elemTrg.querySelector(".mdl-textfield__" + name).innerText = text;
+        }
+        if (elemTrg.querySelector(".mdl-form__" + name)) {
+            elemTrg.querySelector(".mdl-form__" + name).innerText = text;
+        }
+    }
+
+    //重置form表单状态
+    static resetForm(modalTrg) {
+        //清空input
+        let formTrg = modalTrg.querySelector('form');
+        formTrg.reset();
+        //取消错误提示
+        for (let trg of Array.from(modalTrg.querySelectorAll('.is-responsed'))) {
+            Func.resetFormElem(trg, false, '', 'is-responsed');
+        }
+        for (let trg of Array.from(modalTrg.querySelectorAll('.is-invalid'))) {
+            Func.resetFormElem(trg, false, '', 'is-invalid');
+        }
+    }
+
+    static toggleUserLayout(isShowUserLayout) {
+        let _isShowUserLayout = (typeof isShowUserLayout === 'boolean') ? isShowUserLayout : false;
+        let btns = document.querySelectorAll('.j-action-btn');
+        let i = btns.length;
+        if (_isShowUserLayout === true) {
+            document.querySelector('.j-user-email').innerText = '您好，' + Func.getCookie('email');
+            document.querySelector('.j-layout-guest').style.display = 'none';
+            document.querySelector('.j-layout-member').style.display = 'block';
+            while (i--) {
+                btns[i].style.display = 'block';
+            }
+        } else {
+            Func.delCookie('email');
+            document.querySelector('.j-layout-guest').style.display = 'block';
+            document.querySelector('.j-layout-member').style.display = 'none';
+            document.querySelectorAll('.j-action-btn').style.display = 'none';
+            while (i--) {
+                btns[i].style.display = 'none';
+            }
+        }
+    }
 }
 export {
     Func

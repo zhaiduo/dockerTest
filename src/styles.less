@@ -4536,24 +4536,69 @@ h3 {
 }
 
 /* 后端返回错误样式 */
+.mdl-textfield {
+    margin: 4px 0 0 0;
+}
+.mdl-textfield:first-child {
+    margin-top: -10px;
+}
 .mdl-textfield.is-responsed .mdl-textfield__res {
     visibility: visible;
 }
-.mdl-textfield__res {
-    color: #d50000;
-    position: absolute;
-    font-size: 12px;
-    margin-top: 3px;
+.mdl-textfield.is-responsed .mdl-textfield__error {
     visibility: hidden;
+}
+.mdl-textfield__res {
+    position: absolute;
+
     display: block;
+    visibility: hidden;
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #d50000;
 }
 .mdl-textfield--floating-label.is-responsed .mdl-textfield__label {
     color: #d50000;
 }
 .mdl-textfield.is-responsed .mdl-textfield__input {
     border-color: #d50000;
-    box-shadow: none;
     outline: none;
+    box-shadow: none;
+}
+
+/* 修复隐藏弹窗仍能看见错误提示的问题 */
+.u-model {
+    .mdl-textfield--floating-label.is-invalid .mdl-textfield__label {
+        color: #fff !important;
+    }
+    .mdl-textfield.is-invalid .mdl-textfield__error {
+        visibility: hidden !important;
+    }
+
+    .mdl-textfield--floating-label.is-focused .mdl-textfield__label,
+    .mdl-textfield--floating-label.is-dirty .mdl-textfield__label,
+    .mdl-textfield--floating-label.has-placeholder .mdl-textfield__label {
+        visibility: hidden !important;
+
+        color: #3f51b5;
+    }
+    &.qp-ui-mask-visible {
+        .mdl-textfield.is-invalid .mdl-textfield__error {
+            visibility: visible !important;
+        }
+        .mdl-textfield--floating-label.is-invalid .mdl-textfield__label {
+            color: #d50000 !important;
+        }
+        .mdl-textfield--floating-label.is-focused .mdl-textfield__label,
+        .mdl-textfield--floating-label.is-dirty .mdl-textfield__label,
+        .mdl-textfield--floating-label.has-placeholder .mdl-textfield__label {
+            visibility: visible !important;
+
+            color: #3f51b5;
+        }
+    }
 }
 
 
@@ -4596,15 +4641,45 @@ h3 {
         .is-invalid {
             /* 出错样式 */
         }
-        .actions{
-            &.is-responsed{
-                .mdl-form__res{
+        .actions {
+            &.is-responsed {
+                .mdl-form__res {
                     color: #d50000;
+                }
+            }
+            &.is-success {
+                .mdl-form__res {
+                    color: #008000;
                 }
             }
         }
     }
     form {
         padding: 20px 0;
+    }
+}
+
+.j-layout-guest {
+    display: block;
+}
+.j-layout-member {
+    display: none;
+}
+
+.mdl-list {
+    &.j-action-btn {
+        display: none;
+        float: right;
+        width: 180px;
+        margin-top: -20px !important;
+        > li {
+            width: 60px;
+
+            font-size: 14px;
+            list-style: none;
+            &:last-child {
+                padding-top: 4px;
+            }
+        }
     }
 }

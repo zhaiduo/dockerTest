@@ -4,23 +4,32 @@ const path = require('path')
 const app = express()
 const config = require('./config.js').setting[app.get('env')];
 
-const {PORT:PORT, HOST:HOST, HTTP:HTTP, UPLOAD_URL:UPLOAD_URL, UPLOAD_DIR:UPLOAD_DIR, CORS_DOMAIN:CORS_DOMAIN, IMG_PREFIX:IMG_PREFIX, SQL_DIR:SQL_DIR} = config;
+const {
+    PORT: PORT,
+    HOST: HOST,
+    HTTP: HTTP,
+    UPLOAD_URL: UPLOAD_URL,
+    UPLOAD_DIR: UPLOAD_DIR,
+    CORS_DOMAIN: CORS_DOMAIN,
+    IMG_PREFIX: IMG_PREFIX,
+    SQL_DIR: SQL_DIR
+} = config;
 
 //http://itbilu.com/nodejs/npm/VkYIaRPz-.html
 const Sequelize = require('sequelize')
 
 const sequelize = new Sequelize('database', 'username', 'password', {
-    host: 'localhost',
-    dialect: 'sqlite',
-    pool: {
-        max: 5,
-        min: 0,
-        idle: 10000
-    },
-    storage: path.join(__dirname, '/' + SQL_DIR + '/database.sqlite')
-})
-// 或者可以简单的使用一个连接 uri
-// sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
+        host: 'localhost',
+        dialect: 'sqlite',
+        pool: {
+            max: 5,
+            min: 0,
+            idle: 10000
+        },
+        storage: path.join(__dirname, '/' + SQL_DIR + '/database.sqlite')
+    })
+    // 或者可以简单的使用一个连接 uri
+    // sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
 
 //http://docs.sequelizejs.com/en/stable/docs/models-definition/
 const Img = sequelize.define('img', {
@@ -56,6 +65,11 @@ const Img = sequelize.define('img', {
             validate: {
                 isUrl: true
             }
+        },
+        userId: {
+            type: Sequelize.INTEGER,
+            model: 'user',
+            key: 'id'
         }
     })
     /*
@@ -79,6 +93,11 @@ const User = sequelize.define('user', {
     name: {
         type: Sequelize.STRING,
         allowNull: true
+    },
+    password: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null
     }
 })
 Img.belongsTo(User, {

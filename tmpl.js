@@ -75,10 +75,16 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
     <header>
       <div class="header-wrapper">
         <div class="header-title">
-        <span class="section-title"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></span>
+        <span class="section-title"><a href="/"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></a></span>
         <span class="chapter-title"></span>
-        <a class="f-top-btn f-float-right link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
-        <a class="f-top-btn f-float-right link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
+        <div class="j-layout-guest">
+          <a class="f-top-btn f-float-right link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
+          <a class="f-top-btn f-float-right link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
+        </div>
+        <div class="j-layout-member">
+          <a class="f-top-btn f-float-right link-logout" href="javascript:void(0);"><i class="material-icons"></i>退出</a>
+          <a class="f-top-btn f-float-right link-hello" href="javascript:void(0);"><i class="material-icons"></i><span class="j-user-email"></span></a>
+        </div>
       </div>
     </div>
   </header>
@@ -95,6 +101,11 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                         <div class="box"><a href="$${row.dataValues.url}" target="_blank"><span class="center-helper"></span><img src="$${row.dataValues.url}" border="0"></a></div>
                     </div>
                     <div class="info">
+                        <ul class="mdl-list j-action-btn">
+                          <li><a class="mdl-button mdl-js-button mdl-button--icon j-rename j-rename-$${row.dataValues.id}" data-name="$${row.dataValues.name}" title="修改文件名" href="javasript:void(0);">&#9998;</a></li>
+                          <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-remark="$${row.dataValues.option}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
+                          <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-tag="$${row.dataValues.tags}" title="标签管理">&#9003;</a></li>
+                        </ul>
                         <span>【$${index+1}】 $${publisDate(row.dataValues.name)} </span><br>
                         <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
                         <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
@@ -197,6 +208,97 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         </div>
       </dialog>
     </div>
+
+    <div class="qp-ui-mask-modal u-model u-model-rename">
+      <dialog class="u-dialog u-dialog-rename">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">修改图片名</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+\.[0-9a-z]{2,}$" id="rename-name" value="">
+              <label class="mdl-textfield__label" for="rename-name">图片名</label>
+              <span class="mdl-textfield__error">请输入输入图片名！</span>
+              <span class="mdl-textfield__res"></span>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner"></div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-rename">
+            确定修改
+          </button>
+          <p></p>
+        </div>
+      </dialog>
+    </div>
+
+    <div class="qp-ui-mask-modal u-model u-model-tag">
+      <dialog class="u-dialog u-dialog-tag">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">标签管理</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="name" value="">
+              <label class="mdl-textfield__label" for="name">图片名</label>
+              <span class="mdl-textfield__error">请输入输入图片名！</span>
+              <span class="mdl-textfield__res"></span>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner"></div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-tag">
+            确定修改
+          </button>
+          <p></p>
+        </div>
+      </dialog>
+    </div>
+
+    <div class="qp-ui-mask-modal u-model u-model-remark">
+      <dialog class="u-dialog u-dialog-remark">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">修改备注</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="remark-name" value="">
+              <label class="mdl-textfield__label" for="remark-name">备注</label>
+              <span class="mdl-textfield__error">请输入输入备注！</span>
+              <span class="mdl-textfield__res"></span>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner"></div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-remark">
+            确定修改
+          </button>
+          <p></p>
+        </div>
+      </dialog>
+    </div>
+
     <script src="/static/material.js"></script>
     <script src="/static/index.js"></script>
   </body>

@@ -189,6 +189,10 @@ const delCookie = (key) => {
     };
 };
 
+const commonReg = {
+    email: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i")
+};
+
 
 exports.getDateObj = getDateObj
 exports.getDayDir = getDayDir
@@ -201,4 +205,4 @@ exports.formPostAction = formPostAction
 exports.postDataCheckAction = postDataCheckAction
 exports.setCookie = setCookie
 exports.delCookie = delCookie
-
+exports.commonReg = commonReg

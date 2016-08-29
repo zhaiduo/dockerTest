@@ -10,6 +10,13 @@ from './Func';
 
 import * as pbEvt from './Event';
 
+window.onload = function(event) {
+    if (pbFunc.getCookie('email')) {
+        pbFunc.toggleUserLayout(true);
+    } else {
+        pbFunc.toggleUserLayout(false);
+    }
+};
 
 pbFunc.bindElemsByNameArr([
     '.copy-url',
@@ -19,7 +26,11 @@ pbFunc.bindElemsByNameArr([
     '.close-modal',
     '.j-close',
     '.j-login',
-    '.j-register'
+    '.j-register',
+    '.link-logout',
+    '.j-rename',
+    '.j-remark',
+    '.j-tag'
 ], "click", [
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
@@ -28,5 +39,9 @@ pbFunc.bindElemsByNameArr([
     pbEvt.closeModalEvnt,
     pbEvt.closeModalEvnt,
     pbEvt.loginSubmitEvnt,
-    pbEvt.registerSubmitEvnt
+    pbEvt.registerSubmitEvnt,
+    pbEvt.logoutSubmitEvnt,
+    pbEvt.renameEvnt,
+    pbEvt.remarkEvnt,
+    pbEvt.tagEvnt
 ])

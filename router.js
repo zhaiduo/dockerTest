@@ -29,7 +29,8 @@ const ImgTags = db.ImgTags
 
 const tmpl = require('./tmpl.js');
 const lib = require('./lib.js');
-const eachPage = 1
+const eachPage = 10
+const defaultUser = 'guest@img.pinbot.me';
 
 class Controller {
     constructor() {
@@ -43,13 +44,15 @@ class Controller {
         order = [
             ['id', 'DESC']
         ],
-        more = {}
+        more = {},
+        include = []
     } = {}) {
         tbIns.findAndCountAll({
             where: where,
             offset: offset,
             limit: eachPage,
-            order: order
+            order: order,
+            include: include
         }).then(result => {
             //console.log('result.count', result.count);
             //console.log('result.rows', result.rows);
@@ -124,8 +127,20 @@ class Router {
             }),*/
             (req, res) => {
                 //console.log("req.user", req.user)
-                //console.log('Cookies: ', req.cookies);
+
                 //if (!req.user.admin) return res.sendStatus(401)
+                //console.log('Cookies: ', req.cookies);
+                let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+                let currentInclude = [];
+                if (currentUser !== defaultUser) {
+                    currentInclude = [{
+                        model: User,
+                        as: 'user',
+                        where: {
+                            email: currentUser
+                        }
+                    }];
+                }
                 Controller.pageList(res, Img, tmpl.indexTmpl, {
                     cp: 1,
                     where: {},
@@ -136,7 +151,8 @@ class Router {
                     ],
                     more: {
                         link: CORS_DOMAIN
-                    }
+                    },
+                    include: currentInclude
                 });
             })
 
@@ -144,8 +160,19 @@ class Router {
 
             //console.log('Cookies: ', req.cookies);
             let cp = 1
-            if (typeof req.params.page === 'string' && req.params.page.match(/^[0-9]+$/i)) cp = req.params.page
-            let offset = eachPage * (parseInt(cp, 10) - 1)
+            if (typeof req.params.page === 'string' && req.params.page.match(/^[0-9]+$/i)) cp = req.params.page;
+            let offset = eachPage * (parseInt(cp, 10) - 1);
+            let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+            let currentInclude = [];
+            if (currentUser !== defaultUser) {
+                currentInclude = [{
+                    model: User,
+                    as: 'user',
+                    where: {
+                        email: currentUser
+                    }
+                }];
+            }
             Controller.pageList(res, Img, tmpl.indexTmpl, {
                 cp: cp,
                 where: {},
@@ -156,7 +183,8 @@ class Router {
                 ],
                 more: {
                     link: CORS_DOMAIN
-                }
+                },
+                include: currentInclude
             });
         })
 
@@ -327,6 +355,11 @@ class Router {
                 }).then(function(user) {
                     console.log("findOne", user)
                     if (user) {
+                        let jwtSecret = 'fds9cxzcafs2';
+                        /*let token = jwt.sign({
+                            email: result.email
+                        }, jwtSecret);*/
+                        console.log('token', jwt);
                         lib.okRes(res, '登录成功！', {}, lib.setCookie('email', result.email, 365));
                     } else {
                         //lib.setCookie('email', 'test' + result.email, 365)
@@ -351,7 +384,10 @@ class Router {
                         });
                     } else {
                         //lib.errRes(res, '注册失败！');
+                        let name = '';
+                        if (result.email.match(/^([^@]+)/i)) name = RegExp.$1;
                         User.create({
+                            name: name,
                             email: result.email,
                             password: result.password
                         }).then(user => {

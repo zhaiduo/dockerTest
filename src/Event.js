@@ -38,6 +38,7 @@ const modalEvent = (event, name) => {
         //关闭所有弹窗
         pbFunc.elemsAction(document.getElementsByClassName('u-model'), (elem) => {
             pbFunc.toggleModal(elem, false);
+            pbFunc.resetForm(elem);
         });
         //打开弹窗
         let trg = document.getElementsByClassName('u-model-' + name);
@@ -50,6 +51,15 @@ const loginEvnt = (event) => {
 
 const registerEvnt = (event) => {
     modalEvent(event, 'register');
+};
+
+const logoutSubmitEvnt = (event) => {
+    evtHandler(event, (event, ...args) => {
+        pbFunc.toggleUserLayout(false);
+        setTimeout(function() {
+            document.location.reload();
+        }, 1000);
+    }, null)
 };
 
 const closeModalEvnt = (event) => {
@@ -84,19 +94,15 @@ const submitEvnt = (event, cb, ...args) => {
 
 const cancelTextfieldAlertEvnt = (event) => {
     evtHandler(event, (event, ...args) => {
-        let textfieldTrg = event.target.parentNode;
-        pbFunc.toggleClass(textfieldTrg, 'is-responsed', false);
-        textfieldTrg.querySelector(".mdl-textfield__res").innerText = '';
+        pbFunc.resetFormElem(event.target.parentNode, false, '');
     }, null)
 };
 
 const textfieldErrHandler = (id, textfieldTrg, isNotValid, errMsg) => {
     if (isNotValid) {
-        pbFunc.toggleClass(textfieldTrg, 'is-responsed', true);
-        textfieldTrg.querySelector(".mdl-textfield__res").innerText = errMsg;
+        pbFunc.resetFormElem(textfieldTrg, true, errMsg);
     } else {
-        pbFunc.toggleClass(textfieldTrg, 'is-responsed', false);
-        textfieldTrg.querySelector(".mdl-textfield__res").innerText = '';
+        pbFunc.resetFormElem(textfieldTrg, false, '');
     }
     //on focus: 取消错误提示
     pbFunc.bindElemsByNameArr([
@@ -135,20 +141,17 @@ const formSubmitResHandler = (modalTrg, submitBtnCssName, reqUrl, postData, cbOk
         pbFunc.toggleClass(actionsTrg.querySelector(submitBtnCssName), 'disabled', false);
         console.log('post then', result);
         if (result.status && result.status === 'ok') {
-            pbFunc.toggleClass(actionsTrg, 'is-responsed', false);
-            actionsTrg.querySelector(".mdl-form__res").innerText = '';
+            pbFunc.resetFormElem(actionsTrg, false, '');
             if (typeof cbOk === 'function') cbOk(result);
         } else {
-            pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
-            actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
+            pbFunc.resetFormElem(actionsTrg, true, result.msg);
             if (typeof cbOk === 'function') cbErr(result);
         }
 
     }).catch(result => {
         pbFunc.toggleClass(actionsTrg.querySelector(".mdl-spinner"), 'is-active', true);
         pbFunc.toggleClass(actionsTrg.querySelector(submitBtnCssName), 'disabled', false);
-        pbFunc.toggleClass(actionsTrg, 'is-responsed', true);
-        actionsTrg.querySelector(".mdl-form__res").innerText = result.msg;
+        pbFunc.resetFormElem(actionsTrg, true, result.msg);
         if (typeof cbOk === 'function') cbErr(result);
     })
 };
@@ -178,16 +181,24 @@ const loginSubmitEvnt = (event) => {
             password: pbFunc.MD5(args[0].querySelector("#email").value + args[0].querySelector("#password").value),
             email: args[0].querySelector("#email").value
         }, (result) => {
-            console.log('login ok');
+            console.log('login ok', result, pbFunc.getCookie('email'));
             pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
             //获取email
 
             //刷新界面
+            pbFunc.toggleUserLayout(true);
+
             //展示管理
             //展示标签
+            setTimeout(function() {
+                document.location.reload();
+            }, 1000);
         }, (result) => {
             args[0].querySelector("#password").value = '';
-            console.log('login failed');
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);
+
         });
 
     }, null);
@@ -224,16 +235,47 @@ const registerSubmitEvnt = (event) => {
             password: pbFunc.MD5(args[0].querySelector("#reg_email").value + args[0].querySelector("#reg_password").value),
             email: args[0].querySelector("#reg_email").value
         }, (result) => {
-            console.log('reg ok');
-            pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
-            document.querySelector('.header-wrapper .link-login').click();
+            //console.log('reg ok');
+            //显示注册成功消息，自动跳转到登录页面
+            pbFunc.resetForm(args[0]);
+            pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '恭喜～注册成功!', 'is-success')
+            setTimeout(() => {
+                pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
+                pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+                document.querySelector('.header-wrapper .link-login').click();
+            }, 3000);
         }, (result) => {
-            console.log('reg failed');
+            //console.log('reg failed');
             args[0].querySelector("#reg_password").value = '';
             args[0].querySelector("#reg_password2").value = '';
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);
         });
 
     }, null)
+};
+
+const modifyEvent = (event, name, attrName, fieldname) => {
+    let modalTrg = document.getElementsByClassName('u-model-' + name);
+    let tmp = event.target.getAttribute(attrName);
+    if (tmp === 'null') tmp = '';
+    modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
+    setTimeout(function() {
+        modalTrg[0].querySelector(fieldname).focus();
+    }, 500);
+};
+
+const renameEvnt = (event) => {
+    modifyEvent(event, 'rename', 'data-name', '#rename-name');
+    modalEvent(event, 'rename');
+};
+const remarkEvnt = (event) => {
+    modifyEvent(event, 'remark', 'data-remark', '#remark-name');
+    modalEvent(event, 'remark');
+};
+const tagEvnt = (event) => {
+    modalEvent(event, 'tag');
 };
 
 export {
@@ -242,5 +284,9 @@ export {
     registerEvnt,
     closeModalEvnt,
     loginSubmitEvnt,
-    registerSubmitEvnt
+    registerSubmitEvnt,
+    logoutSubmitEvnt,
+    renameEvnt,
+    remarkEvnt,
+    tagEvnt
 }
