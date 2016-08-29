@@ -532,10 +532,10 @@ class Func {
         Func.toggleClass(elemTrg, _cssName, isShow);
         let name = (_cssName === 'is-responsed') ? 'res' : 'error';
         name = (_cssName === 'is-success') ? 'res' : 'error';
-        if (elemTrg.querySelector(".mdl-textfield__" + name)) {
+        if (name === 'res' && elemTrg.querySelector(".mdl-textfield__" + name)) {
             elemTrg.querySelector(".mdl-textfield__" + name).innerText = text;
         }
-        if (elemTrg.querySelector(".mdl-form__" + name)) {
+        if (name === 'res' && elemTrg.querySelector(".mdl-form__" + name)) {
             elemTrg.querySelector(".mdl-form__" + name).innerText = text;
         }
     }
