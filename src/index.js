@@ -30,7 +30,8 @@ pbFunc.bindElemsByNameArr([
     '.link-logout',
     '.j-rename',
     '.j-remark',
-    '.j-tag'
+    '.j-tag',
+    '.j-submit-rename'
 ], "click", [
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
@@ -43,5 +44,6 @@ pbFunc.bindElemsByNameArr([
     pbEvt.logoutSubmitEvnt,
     pbEvt.renameEvnt,
     pbEvt.remarkEvnt,
-    pbEvt.tagEvnt
+    pbEvt.tagEvnt,
+    pbEvt.renameSubmitEvnt
 ])

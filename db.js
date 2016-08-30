@@ -147,3 +147,4 @@ exports.Img = Img
 exports.User = User
 exports.Tag = Tag
 exports.ImgTags = ImgTags
+exports.sequelize = sequelize

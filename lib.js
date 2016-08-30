@@ -1,6 +1,8 @@
+//nodedoc: http://millermedeiros.github.io/mdoc/examples/node_api/doc/index.html
 'use strict'
 const express = require('express')
 const formidable = require('formidable')
+const fs = require('fs')
 const app = express()
 const config = require('./config.js').setting[app.get('env')];
 
@@ -193,6 +195,44 @@ const commonReg = {
     email: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i")
 };
 
+const fsAction = {
+    del: (filename) => {
+        return new Promise((resolve, reject) => {
+            fs.unlink(filename, function(err) {
+                if (err) {
+                    //throw err;
+                    reject({
+                        status: 'error',
+                        msg: 'unlink failed'
+                    })
+                } else {
+                    resolve({
+                        status: 'ok',
+                        msg: 'unlink ok'
+                    })
+                }
+            });
+        });
+    },
+    rename: (fromNamr, toName) => {
+        return new Promise((resolve, reject) => {
+            fs.rename(fromNamr, toName, function(err) {
+                if (err) {
+                    //throw err;
+                    reject({
+                        status: 'error',
+                        msg: 'rename failed'
+                    })
+                } else {
+                    resolve({
+                        status: 'ok',
+                        msg: 'rename ok'
+                    })
+                }
+            });
+        });
+    }
+};
 
 exports.getDateObj = getDateObj
 exports.getDayDir = getDayDir
@@ -206,3 +246,4 @@ exports.postDataCheckAction = postDataCheckAction
 exports.setCookie = setCookie
 exports.delCookie = delCookie
 exports.commonReg = commonReg
+exports.fsAction = fsAction

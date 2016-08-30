@@ -259,8 +259,10 @@ const registerSubmitEvnt = (event) => {
 const modifyEvent = (event, name, attrName, fieldname) => {
     let modalTrg = document.getElementsByClassName('u-model-' + name);
     let tmp = event.target.getAttribute(attrName);
+    let id = event.target.getAttribute('data-id');
     if (tmp === 'null') tmp = '';
     modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
+    modalTrg[0].querySelector(fieldname + '-id').setAttribute('value', id);
     setTimeout(function() {
         modalTrg[0].querySelector(fieldname).focus();
     }, 500);
@@ -278,6 +280,52 @@ const tagEvnt = (event) => {
     modalEvent(event, 'tag');
 };
 
+
+const renameCheckArr = [{
+    name: 'rename-name',
+    required: true,
+    reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
+    msg: '请输入图片名！！'
+}];
+
+const renameSubmitEvnt = (event) => {
+    console.log('renameSubmitEvnt', event);
+    submitEvnt(event, (event, ...args) => {
+        console.log('renameSubmitEvnt2', event, args);
+
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], renameCheckArr);
+        if (!formChkOk) return false;
+
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-submit-rename", '/rename', {
+            id: args[0].querySelector("#rename-name-id").value,
+            name: args[0].querySelector("#rename-name").value
+        }, (result) => {
+            //关闭弹窗
+            pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+
+            //刷新界面
+        }, (result) => {
+            //提示错误
+            /*args[0].querySelector("#password").value = '';
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);*/
+
+        });
+
+    }, null);
+};
+
+const remarkSubmitEvnt = (event) => {
+    //modalEvent(event, 'tag');
+};
+
+const tagSubmitEvnt = (event) => {
+    //modalEvent(event, 'tag');
+};
+
 export {
     copyEvnt,
     loginEvnt,
@@ -288,5 +336,10 @@ export {
     logoutSubmitEvnt,
     renameEvnt,
     remarkEvnt,
-    tagEvnt
+    tagEvnt,
+    remarkSubmitEvnt,
+    tagSubmitEvnt,
+    renameSubmitEvnt,
+    remarkSubmitEvnt,
+    tagSubmitEvnt
 }
