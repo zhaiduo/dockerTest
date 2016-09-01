@@ -219,7 +219,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+\.[0-9a-z]{2,}$" id="rename-name" value="">
-              <input class="mdl-textfield__input" type="hidden" id="rename-name-id" value="">
+              <input class="mdl-textfield__input" type="hidden" id="rename-name-id" data-name="" value="">
               <label class="mdl-textfield__label" for="rename-name">图片名</label>
               <span class="mdl-textfield__error">请输入输入图片名！</span>
               <span class="mdl-textfield__res"></span>
@@ -249,7 +249,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="tag" value="">
+              <input class="mdl-textfield__textarea" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="tag" value="">
               <input class="mdl-textfield__input" type="hidden" id="tag-id" value="">
               <label class="mdl-textfield__label" for="tag">图片名</label>
               <span class="mdl-textfield__error">请输入输入图片名！</span>
@@ -280,10 +280,10 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" id="remark-name" value="">
+              <textarea class="mdl-textfield__textarea" id="remark-name" rows="5" cols="90" pattern="^.{2,}$" ></textarea>
               <input class="mdl-textfield__input" type="hidden" id="remark-name-id" value="">
               <label class="mdl-textfield__label" for="remark-name">备注</label>
-              <span class="mdl-textfield__error">请输入输入备注！</span>
+              <span class="mdl-textfield__error">请输入备注！</span>
               <span class="mdl-textfield__res"></span>
             </div>
           </form>
@@ -295,7 +295,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
             取消
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-remark">
-            确定修改
+            确定
           </button>
           <p></p>
         </div>

@@ -1,4 +1,5 @@
 'use strict'
+
 const express = require('express')
 const path = require('path')
 const app = express()
@@ -32,6 +33,8 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     // sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
 
 //http://docs.sequelizejs.com/en/stable/docs/models-definition/
+// http://docs.sequelizejs.com/en/latest/docs/models-usage/
+//
 const Img = sequelize.define('img', {
         id: {
             type: Sequelize.INTEGER,

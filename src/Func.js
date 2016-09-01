@@ -531,7 +531,7 @@ class Func {
         let _cssName = (typeof cssName === 'string') ? cssName : 'is-responsed';
         Func.toggleClass(elemTrg, _cssName, isShow);
         let name = (_cssName === 'is-responsed') ? 'res' : 'error';
-        name = (_cssName === 'is-success') ? 'res' : 'error';
+        if (_cssName === 'is-success') name = 'res';
         if (name === 'res' && elemTrg.querySelector(".mdl-textfield__" + name)) {
             elemTrg.querySelector(".mdl-textfield__" + name).innerText = text;
         }

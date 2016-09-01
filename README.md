@@ -4,7 +4,7 @@
 > npm install
 > npm install suppervisor
 > ./doMigrate.sh
-> npm run develp (本地)
+> npm run develop (本地)
 > npm run start (线上)
 
 ##How to use

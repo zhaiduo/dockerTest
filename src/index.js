@@ -31,7 +31,9 @@ pbFunc.bindElemsByNameArr([
     '.j-rename',
     '.j-remark',
     '.j-tag',
-    '.j-submit-rename'
+    '.j-submit-rename',
+    '.j-submit-remark',
+    '.j-submit-tag'
 ], "click", [
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
@@ -45,5 +47,7 @@ pbFunc.bindElemsByNameArr([
     pbEvt.renameEvnt,
     pbEvt.remarkEvnt,
     pbEvt.tagEvnt,
-    pbEvt.renameSubmitEvnt
+    pbEvt.renameSubmitEvnt,
+    pbEvt.remarkSubmitEvnt,
+    pbEvt.tagSubmitEvnt
 ])

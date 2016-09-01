@@ -258,11 +258,14 @@ const registerSubmitEvnt = (event) => {
 
 const modifyEvent = (event, name, attrName, fieldname) => {
     let modalTrg = document.getElementsByClassName('u-model-' + name);
+    //从icon attrName获取文件名
     let tmp = event.target.getAttribute(attrName);
     let id = event.target.getAttribute('data-id');
     if (tmp === 'null') tmp = '';
     modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
+    if (modalTrg[0].querySelector(fieldname).getAttribute('data-name')) modalTrg[0].querySelector(fieldname).setAttribute('data-name', tmp);
     modalTrg[0].querySelector(fieldname + '-id').setAttribute('value', id);
+    pbFunc.toggleClass(modalTrg[0].querySelector(fieldname).parentNode, 'is-dirty', true);
     setTimeout(function() {
         modalTrg[0].querySelector(fieldname).focus();
     }, 500);
@@ -280,12 +283,11 @@ const tagEvnt = (event) => {
     modalEvent(event, 'tag');
 };
 
-
 const renameCheckArr = [{
     name: 'rename-name',
     required: true,
     reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
-    msg: '请输入图片名！！'
+    msg: '请输入图片名！'
 }];
 
 const renameSubmitEvnt = (event) => {
@@ -297,15 +299,23 @@ const renameSubmitEvnt = (event) => {
         let formChkOk = textfieldErrHandlerByRules(args[0], renameCheckArr);
         if (!formChkOk) return false;
 
+        if (args[0].querySelector("#rename-name").value === args[0].querySelector("#rename-name").getAttribute('data-name')) {
+            let actionsTrg = args[0].querySelector(".actions");
+            pbFunc.resetFormElem(actionsTrg, true, '请确认修改成不同的图片名！');
+            return false;
+        }
+
         //后端响应处理
         formSubmitResHandler(args[0], ".j-submit-rename", '/rename', {
             id: args[0].querySelector("#rename-name-id").value,
             name: args[0].querySelector("#rename-name").value
         }, (result) => {
-            //关闭弹窗
-            pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
-
-            //刷新界面
+            pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '修改图片名称成功!', 'is-success')
+            setTimeout(() => {
+                pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
+                //关闭弹窗
+                pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            }, 3000);
         }, (result) => {
             //提示错误
             /*args[0].querySelector("#password").value = '';
@@ -318,8 +328,42 @@ const renameSubmitEvnt = (event) => {
     }, null);
 };
 
+const remarkCheckArr = [{
+    name: 'remark-name',
+    required: true,
+    reg: new RegExp("^[\\S]{1,250}$", "i"),
+    msg: '请输入备注(最多250个字符)！'
+}];
 const remarkSubmitEvnt = (event) => {
-    //modalEvent(event, 'tag');
+    console.log('remarkSubmitEvnt', event);
+    submitEvnt(event, (event, ...args) => {
+        console.log('remarkSubmitEvnt2', event, args);
+
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], remarkCheckArr);
+        if (!formChkOk) return false;
+
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-submit-remark", '/remark', {
+            id: args[0].querySelector("#remark-name-id").value,
+            option: args[0].querySelector("#remark-name").value
+        }, (result) => {
+            pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '修改备注成功!', 'is-success')
+            setTimeout(() => {
+                pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
+                //关闭弹窗
+                pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            }, 3000);
+        }, (result) => {
+            //提示错误
+            /*args[0].querySelector("#password").value = '';
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);*/
+
+        });
+
+    }, null);
 };
 
 const tagSubmitEvnt = (event) => {

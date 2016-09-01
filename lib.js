@@ -234,6 +234,37 @@ const fsAction = {
     }
 };
 
+const sql = {
+    transactionUpdatePromise: (sequelize, table, updateData, where, include) => {
+        return sequelize.transaction().then(function(t) {
+            return table.update(updateData, {
+                where: where,
+                include: include
+            }, {
+                transaction: t
+            }).then(function(tab) {
+                return t.commit();
+            }).catch(function(err) {
+                return t.rollback();
+            });
+        });
+    },
+    count: (table, where, expectCount = 0) => {
+        return new Promise((resolve, reject) => {
+            table.count({
+                where: where
+            }).then(count => {
+                console.log("count", count, expectCount)
+                if (count > expectCount) {
+                    reject(count);
+                } else {
+                    resolve(count)
+                }
+            })
+        });
+    }
+};
+
 exports.getDateObj = getDateObj
 exports.getDayDir = getDayDir
 exports.imgUrlPrefix = imgUrlPrefix
@@ -247,3 +278,4 @@ exports.setCookie = setCookie
 exports.delCookie = delCookie
 exports.commonReg = commonReg
 exports.fsAction = fsAction
+exports.sql = sql

@@ -455,84 +455,53 @@ class Router {
                         }).then(function(img) {
                             if (img) {
                                 console.log("findOne img", img.get('url'));
-                                //http://localhost:8080/uploads/2016/8/29/blob_1472460770322.png
-                                if (img.get('url').match(/^(.+)(\/uploads\/)([0-9]+\/[0-9]+\/[0-9]+\/)([^\/]+)$/i)) {
-                                    newUrl = RegExp.$1 + RegExp.$2 + RegExp.$3 + newName;
-                                    imgPath = __dirname + '/uploads/' + RegExp.$3 + RegExp.$4;
-                                    newImgPath = __dirname + '/uploads/' + RegExp.$3 + newName;
-                                    //修改文件名
-                                    let act = lib.fsAction.rename(imgPath, newImgPath);
-                                    /*let promise = new Promise((resolve, reject) => {
-                                        fs.rename(imgPath, newImgPath, function(err) {
-                                            if (err) {
-                                                //throw err;
-                                                reject({
-                                                    status: 'error',
-                                                    msg: 'rename failed'
-                                                })
-                                            } else {
-                                                resolve({
-                                                    status: 'ok',
-                                                    msg: 'rename ok'
-                                                })
-                                            }
-                                        });
-                                    });*/
-                                    act.then(result => {
-                                        let promise2 = db.sequelize.transaction().then(function(t) {
-                                            return Img.update({
-                                                name: newName,
-                                                url: newUrl
-                                            }, {
-                                                where: {
+                                if (img.get('name') === newName) {
+                                    console.log('同名文件！', result);
+                                    lib.errRes(res, '请确认修改成不同的图片名！');
+                                } else {
+                                    let pCount = lib.sql.count(Img, {
+                                        name: newName
+                                    });
+                                    pCount.then(count => {
+                                        //http://localhost:8080/uploads/2016/8/29/blob_1472460770322.png
+                                        if (img.get('url').match(/^(.+)(\/uploads\/)([0-9]+\/[0-9]+\/[0-9]+\/)([^\/]+)$/i)) {
+                                            newUrl = RegExp.$1 + RegExp.$2 + RegExp.$3 + newName;
+                                            imgPath = __dirname + '/uploads/' + RegExp.$3 + RegExp.$4;
+                                            newImgPath = __dirname + '/uploads/' + RegExp.$3 + newName;
+                                            //修改文件名
+                                            let act = lib.fsAction.rename(imgPath, newImgPath);
+                                            act.then(result => {
+                                                let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
+                                                    name: newName,
+                                                    url: newUrl
+                                                }, {
                                                     id: img.get('id')
-                                                },
-                                                include: [{
+                                                }, [{
                                                     model: User,
                                                     as: 'user',
                                                     where: {
                                                         email: req.cookies.email
                                                     }
-                                                }]
-                                            }, {
-                                                transaction: t
-                                            }).then(function(img) {
-                                                return t.commit();
-                                            }).catch(function(err) {
-                                                return t.rollback();
-                                            });
-                                        });
-                                        promise2.then(result => {
-                                            console.log('修改文件名成功！', result);
-                                            lib.okRes(res, '修改成功！');
-                                        }).catch(result => {
-                                            //还原文件名
-                                            console.log('还原文件名', result);
-                                            let act2 = lib.fsAction.rename(newImgPath, imgPath);
-                                            /*let subPromise = new Promise((resolve, reject) => {
-                                                fs.rename(newImgPath, imgPath, function(err) {
-                                                    if (err) {
-                                                        //throw err;
-                                                        reject({
-                                                            status: 'error',
-                                                            msg: 'restore rename failed'
-                                                        })
-                                                    } else {
-                                                        resolve({
-                                                            status: 'ok',
-                                                            msg: 'restore rename ok'
-                                                        })
-                                                    }
+                                                }]);
+                                                promise2.then(result => {
+                                                    console.log('修改文件名成功！', result);
+                                                    lib.okRes(res, '修改成功！');
+                                                }).catch(result => {
+                                                    //还原文件名
+                                                    console.log('还原文件名', result);
+                                                    let act2 = lib.fsAction.rename(newImgPath, imgPath);
+                                                    lib.errRes(res, '修改图片名失败！T');
                                                 });
-                                            });*/
-                                            lib.errRes(res, '修改图片名失败！T');
-                                        });
-                                    }).catch(result => {
-                                        lib.errRes(res, '修改图片名失败！');
-                                    });
+                                            }).catch(result => {
+                                                lib.errRes(res, '修改图片名失败！');
+                                            });
 
-                                } else {
-                                    lib.errRes(res, '图片名无效！');
+                                        } else {
+                                            lib.errRes(res, '图片名无效！');
+                                        }
+                                    }).catch(result => {
+                                        lib.errRes(res, '图片已存在！');
+                                    });
                                 }
                             } else {
                                 lib.errRes(res, '没有这个图片！');
