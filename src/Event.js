@@ -289,7 +289,6 @@ const renameCheckArr = [{
     reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
     msg: '请输入图片名！'
 }];
-
 const renameSubmitEvnt = (event) => {
     console.log('renameSubmitEvnt', event);
     submitEvnt(event, (event, ...args) => {
@@ -366,8 +365,42 @@ const remarkSubmitEvnt = (event) => {
     }, null);
 };
 
+const tagCheckArr = [{
+    name: 'tag-name',
+    required: true,
+    reg: new RegExp("^[\\S\\s]{1,250}$", "i"),
+    msg: '请输入标签(多个标签用空格分割)！'
+}];
 const tagSubmitEvnt = (event) => {
-    //modalEvent(event, 'tag');
+    console.log('tagSubmitEvnt', event);
+    submitEvnt(event, (event, ...args) => {
+        console.log('tagSubmitEvnt2', event, args);
+
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], tagCheckArr);
+        if (!formChkOk) return false;
+
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-submit-tag", '/tagname', {
+            id: args[0].querySelector("#tag-name-id").value,
+            name: args[0].querySelector("#tag-name").value
+        }, (result) => {
+            pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '修改标签成功!', 'is-success')
+            setTimeout(() => {
+                pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
+                //关闭弹窗
+                pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            }, 3000);
+        }, (result) => {
+            //提示错误
+            /*args[0].querySelector("#password").value = '';
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);*/
+
+        });
+
+    }, null);
 };
 
 export {

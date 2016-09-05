@@ -265,6 +265,16 @@ const sql = {
     }
 };
 
+class reqAction {
+    static go(isCanDo, actionClass){
+        if(typeof isCanDo === 'boolean' && isCanDo === true){
+            let tmpClass = new actionClass();
+            tmpClass.handle();
+        }
+
+    }
+}
+
 exports.getDateObj = getDateObj
 exports.getDayDir = getDayDir
 exports.imgUrlPrefix = imgUrlPrefix

@@ -245,16 +245,17 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <span class="close-modal">
           <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
         </span>
-        <h3 class="title">标签管理</h3>
+        <h3 class="title">标签管理<span>(每个图片最多十个标签)</span></h3>
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__textarea" type="text" pattern="^[0-9a-z_\.\-]+@[0-9a-z\-]+\.[0-9a-z\.\-]{2,}$" id="tag" value="">
-              <input class="mdl-textfield__input" type="hidden" id="tag-id" value="">
-              <label class="mdl-textfield__label" for="tag">图片名</label>
-              <span class="mdl-textfield__error">请输入输入图片名！</span>
+              <input class="mdl-textfield__input" type="text" pattern="^.{2,}$" id="tag-name" value="">
+              <input class="mdl-textfield__input" type="hidden" id="tag-name-id" data-name=""  value="">
+              <label class="mdl-textfield__label" for="tag-name">标签名</label>
+              <span class="mdl-textfield__error">请输入标签！(多个标签用空格分割)</span>
               <span class="mdl-textfield__res"></span>
             </div>
+            <div class="tags"><ul></ul></div>
           </form>
         </div>
         <div class="actions">
@@ -264,7 +265,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
             取消
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-tag">
-            确定修改
+            确定
           </button>
           <p></p>
         </div>

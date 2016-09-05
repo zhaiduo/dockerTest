@@ -75,6 +75,28 @@ class Router {
             reg: new RegExp("^[\\S]{6,}$", "i"),
             msg: '请输入至少6位密码！'
         }];
+
+        const renameCheckArr = [{
+            name: 'rename-name',
+            required: true,
+            reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
+            msg: '请输入图片名！！'
+        }];
+
+        const remarkCheckArr = [{
+            name: 'remark-name',
+            required: true,
+            reg: new RegExp("^[\\S]{2,}$", "i"),
+            msg: '请输入注释！！'
+        }];
+
+        const tagnameCheckArr = [{
+            name: 'tag-name',
+            required: true,
+            reg: new RegExp("^[\\S\\s]{1,250}$", "i"),
+            msg: '请输入标签(多个标签用空格分割)！'
+        }];
+
         // Add headers
         app.use((req, res, next) => {
 
@@ -252,45 +274,44 @@ class Router {
                     // https://github.com/felixge/node-formidable
                     form.parse(req, (err, fields, files) => {
                         console.log("fields", fields);
-                        if (fields && fields.email) {
-                            if (fields.email.match(emailPattern)) {
-                                userName = RegExp.$1
-                                //判断用户是否存在
-                                User.findOrCreate({
-                                    where: {
-                                        email: fields.email
-                                    },
-                                    defaults: {
-                                        name: userName
-                                    }
-                                }).then(user => {
-                                    //console.log("user", user)
-                                    if (user[0] && user[0].dataValues) {
-                                        userId = user[0].dataValues.id
-                                        userEmail = user[0].dataValues.email
-                                    } else {
-                                        userId = 1
-                                        userEmail = fields.email
-                                    }
-                                    resolve(fields.email)
-                                }).catch(error => {
-                                    reject({
-                                        status: 'error',
-                                        msg: 'user check error'
-                                    })
-                                })
-                            } else {
-                                reject({
-                                    status: 'error',
-                                    msg: 'invalid email'
-                                })
-                            }
+                        if (!fields || !fields.email) reject({
+                            status: 'error',
+                            msg: 'email not found'
+                        })
+
+                        if (fields.email.match(emailPattern)) {
+                            userName = RegExp.$1
                         } else {
                             reject({
                                 status: 'error',
-                                msg: 'email not found'
+                                msg: 'invalid email'
                             })
                         }
+
+                        //判断用户是否存在
+                        User.findOrCreate({
+                            where: {
+                                email: fields.email
+                            },
+                            defaults: {
+                                name: userName
+                            }
+                        }).then(user => {
+                            //console.log("user", user)
+                            if (user[0] && user[0].dataValues) {
+                                userId = user[0].dataValues.id
+                                userEmail = user[0].dataValues.email
+                            } else {
+                                userId = 1
+                                userEmail = fields.email
+                            }
+                            resolve(fields.email)
+                        }).catch(error => {
+                            reject({
+                                status: 'error',
+                                msg: 'user check error'
+                            })
+                        })
                     })
                 })
 
@@ -391,9 +412,7 @@ class Router {
                 }).then(function(user) {
                     console.log("findOne", user)
                     if (user) {
-                        lib.okRes(res, '用户已存在，注册失败！', {}, {
-
-                        });
+                        lib.okRes(res, '用户已存在，注册失败！', {}, {});
                     } else {
                         //lib.errRes(res, '注册失败！');
                         let name = '';
@@ -424,98 +443,140 @@ class Router {
             });
         })
 
-        const renameCheckArr = [{
-            name: 'rename-name',
-            required: true,
-            reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
-            msg: '请输入图片名！！'
-        }];
+
         app.post('/rename', (req, res) => {
             //console.log('Cookies: ', req.cookies)
-            if (req.cookies && req.cookies.email && req.cookies.email.match(lib.commonReg.email)) {
-                lib.postDataCheckAction(req, res, renameCheckArr, result => {
-                    console.log("rename", result);
-                    let newName = '';
-                    let newUrl = '';
-                    let imgPath = '';
-                    let newImgPath = '';
-                    if (result.id && result.name && result.name.match(/^([0-9a-z_\-]+)\.([0-9a-z]+)$/i)) {
-                        newName = result.name;
-                        Img.findOne({
-                            where: {
-                                id: result.id
-                            },
-                            include: [{
-                                model: User,
-                                as: 'user',
-                                where: {
-                                    email: req.cookies.email
-                                }
-                            }]
-                        }).then(function(img) {
-                            if (img) {
-                                console.log("findOne img", img.get('url'));
-                                if (img.get('name') === newName) {
-                                    console.log('同名文件！', result);
-                                    lib.errRes(res, '请确认修改成不同的图片名！');
-                                } else {
-                                    let pCount = lib.sql.count(Img, {
-                                        name: newName
-                                    });
-                                    pCount.then(count => {
-                                        //http://localhost:8080/uploads/2016/8/29/blob_1472460770322.png
-                                        if (img.get('url').match(/^(.+)(\/uploads\/)([0-9]+\/[0-9]+\/[0-9]+\/)([^\/]+)$/i)) {
-                                            newUrl = RegExp.$1 + RegExp.$2 + RegExp.$3 + newName;
-                                            imgPath = __dirname + '/uploads/' + RegExp.$3 + RegExp.$4;
-                                            newImgPath = __dirname + '/uploads/' + RegExp.$3 + newName;
-                                            //修改文件名
-                                            let act = lib.fsAction.rename(imgPath, newImgPath);
-                                            act.then(result => {
-                                                let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
-                                                    name: newName,
-                                                    url: newUrl
-                                                }, {
-                                                    id: img.get('id')
-                                                }, [{
-                                                    model: User,
-                                                    as: 'user',
-                                                    where: {
-                                                        email: req.cookies.email
-                                                    }
-                                                }]);
-                                                promise2.then(result => {
-                                                    console.log('修改文件名成功！', result);
-                                                    lib.okRes(res, '修改成功！');
-                                                }).catch(result => {
-                                                    //还原文件名
-                                                    console.log('还原文件名', result);
-                                                    let act2 = lib.fsAction.rename(newImgPath, imgPath);
-                                                    lib.errRes(res, '修改图片名失败！T');
-                                                });
-                                            }).catch(result => {
-                                                lib.errRes(res, '修改图片名失败！');
-                                            });
-
-                                        } else {
-                                            lib.errRes(res, '图片名无效！');
-                                        }
-                                    }).catch(result => {
-                                        lib.errRes(res, '图片已存在！');
-                                    });
-                                }
-                            } else {
-                                lib.errRes(res, '没有这个图片！');
-                            }
-                        })
-                    } else {
-                        lib.errRes(res, '无效图片名！');
+            //lib.errRes(res, '系统维护中！');
+            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            lib.postDataCheckAction(req, res, renameCheckArr, result => {
+                console.log("rename", result);
+                let newName = '';
+                let newUrl = '';
+                let imgPath = '';
+                let newImgPath = '';
+                if (!result.id || !result.name || !result.name.match(/^([0-9a-z_\-]+)\.([0-9a-z]+)$/i)) lib.errRes(res, '无效图片名！');
+                newName = result.name;
+                Img.findOne({
+                    where: {
+                        id: result.id
+                    },
+                    include: Router.userInclude(req.cookies.email)
+                }).then(function(img) {
+                    if (!img) lib.errRes(res, '没有这个图片！');
+                    //console.log("findOne img", img.get('url'));
+                    if (img.get('name') === newName) {
+                        //console.log('同名文件！', result);
+                        lib.errRes(res, '请确认修改成不同的图片名！');
                     }
-                });
-            } else {
-                lib.errRes(res, '请先登录！');
-            }
+
+                    let pCount = lib.sql.count(Img, {
+                        name: newName
+                    });
+                    pCount.then(count => {
+                        //http://localhost:8080/uploads/2016/8/29/blob_1472460770322.png
+                        if (!img.get('url') || !img.get('url').match(/^(.+)(\/uploads\/)([0-9]+\/[0-9]+\/[0-9]+\/)([^\/]+)$/i)) lib.errRes(res, '图片名无效！');
+                        newUrl = RegExp.$1 + RegExp.$2 + RegExp.$3 + newName;
+                        imgPath = __dirname + '/uploads/' + RegExp.$3 + RegExp.$4;
+                        newImgPath = __dirname + '/uploads/' + RegExp.$3 + newName;
+                        //修改文件名
+                        let act = lib.fsAction.rename(imgPath, newImgPath);
+                        act.then(result => {
+                            let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
+                                name: newName,
+                                url: newUrl
+                            }, {
+                                id: img.get('id')
+                            }, Router.userInclude(req.cookies.email));
+                            promise2.then(result => {
+                                console.log('修改文件名成功！', result);
+                                lib.okRes(res, '修改成功！');
+                            }).catch(result => {
+                                //还原文件名
+                                console.log('还原文件名', result);
+                                let act2 = lib.fsAction.rename(newImgPath, imgPath);
+                                lib.errRes(res, '修改图片名失败！T');
+                            });
+                        }).catch(result => {
+                            lib.errRes(res, '修改图片名失败！');
+                        });
+                    }).catch(result => {
+                        lib.errRes(res, '图片已存在！');
+                    });
+                })
+            });
         })
 
+        app.post('/remark', (req, res) => {
+            //console.log('Cookies: ', req.cookies)
+            //lib.errRes(res, '系统维护中！');
+            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            lib.postDataCheckAction(req, res, remarkCheckArr, result => {
+                console.log("remark", result);
+                if (!result.id || !result.option) lib.errRes(res, '备注丢失！');
+                Img.findOne({
+                    where: {
+                        id: result.id
+                    },
+                    include: Router.userInclude(req.cookies.email)
+                }).then(function(img) {
+                    if (!img) lib.errRes(res, '没有这个图片！');
+                    //console.log("findOne img", img.get('url'));
+                    let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
+                        option: result.option
+                    }, {
+                        id: img.get('id')
+                    }, Router.userInclude(req.cookies.email));
+                    promise2.then(result => {
+                        console.log('修改备注成功！', result);
+                        lib.okRes(res, '修改备注成功！');
+                    }).catch(result => {
+                        lib.errRes(res, '修改备注失败！T');
+                    });
+                })
+            });
+        })
+
+        app.post('/tagname', (req, res) => {
+            //console.log('Cookies: ', req.cookies)
+            //lib.errRes(res, '系统维护中！');
+            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            lib.postDataCheckAction(req, res, tagnameCheckArr, result => {
+                console.log("tagname", result);
+                if (!result.id || !result.name) lib.errRes(res, '标签丢失！');
+                //暂停在此
+                Img.findOne({
+                    where: {
+                        id: result.id
+                    },
+                    include: Router.userInclude(req.cookies.email)
+                }).then(function(img) {
+                    if (!img) lib.errRes(res, '没有这个图片！');
+                    //console.log("findOne img", img.get('url'));
+                    let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
+                        option: result.option
+                    }, {
+                        id: img.get('id')
+                    }, Router.userInclude(req.cookies.email));
+                    promise2.then(result => {
+                        console.log('修改备注成功！', result);
+                        lib.okRes(res, '修改备注成功！');
+                    }).catch(result => {
+                        lib.errRes(res, '修改备注失败！T');
+                    });
+                })
+            });
+        })
+
+    }
+
+    static userInclude(email) {
+        return [{
+            model: User,
+            as: 'user',
+            where: {
+                email: email
+            }
+        }];
     }
 }
 
