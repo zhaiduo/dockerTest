@@ -150,6 +150,8 @@ class Router {
             (req, res) => {
                 //console.log("req.user", req.user)
 
+
+
                 //if (!req.user.admin) return res.sendStatus(401)
                 //console.log('Cookies: ', req.cookies);
                 let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
@@ -296,7 +298,7 @@ class Router {
                             defaults: {
                                 name: userName
                             }
-                        }).then(user => {
+                        }).then((user, created) => {
                             //console.log("user", user)
                             if (user[0] && user[0].dataValues) {
                                 userId = user[0].dataValues.id
@@ -333,7 +335,7 @@ class Router {
                                 name: '截图'
                             },
                             defaults: {}
-                        }).then(tag => {
+                        }).then((tag,created) => {
                             //console.log("user", user)
                             let tagId = 1
                             if (tag[0] && tag[0].dataValues) {
@@ -369,10 +371,6 @@ class Router {
                 console.log('promise error', error)
             })
         })
-
-        /*app.get('/:page', (req, res) => {
-
-        })*/
 
         app.post('/login', (req, res) => {
             //console.log('Cookies: ', req.cookies)
@@ -543,27 +541,91 @@ class Router {
             lib.postDataCheckAction(req, res, tagnameCheckArr, result => {
                 console.log("tagname", result);
                 if (!result.id || !result.name) lib.errRes(res, '标签丢失！');
-                //暂停在此
-                Img.findOne({
-                    where: {
-                        id: result.id
-                    },
-                    include: Router.userInclude(req.cookies.email)
-                }).then(function(img) {
-                    if (!img) lib.errRes(res, '没有这个图片！');
-                    //console.log("findOne img", img.get('url'));
-                    let promise2 = lib.sql.transactionUpdatePromise(db.sequelize, Img, {
-                        option: result.option
-                    }, {
-                        id: img.get('id')
-                    }, Router.userInclude(req.cookies.email));
-                    promise2.then(result => {
-                        console.log('修改备注成功！', result);
-                        lib.okRes(res, '修改备注成功！');
-                    }).catch(result => {
-                        lib.errRes(res, '修改备注失败！T');
+                //最多10个标签／每图
+                let pCount = lib.sql.count(ImgTags, {
+                    imgId: result.id
+                });
+                pCount.then(count => {
+                    if (count >= 10) {
+                        lib.errRes(res, '每个图最多添加十个标签！');
+                    }
+                    let tags = result.name.trim().split(' ');
+                    if (count + tags.length > 10) {
+                        lib.errRes(res, '每个图最多添加十个标签！');
+                    }
+                    let tagMap = [];
+                    for (let item of tags) {
+                        tagMap.push({
+                            name: item
+                        })
+                    }
+                    /*Tag.bulkCreate(tagMap).then(() => {
+                        return Tag.findAll({
+                            where: {
+                                name: {
+                                    $in: tags
+                                }
+                            }
+                        });
+                    }).then(function(tagAll) {
+                        console.log('tagAll', tagAll)
+                    })*/
+                    let pList = [];
+                    for (let item of tags) {
+                        pList.push(new Promise((resolve, reject) => {
+                            Tag.findOne({
+                                where: {
+                                    name: item
+                                }
+                            }).then((tag) => {
+                                return new Promise((resolve2, reject2) => {
+                                    if (!tag) {
+                                        Tag.create({
+                                            name: item
+                                        }).then(newtag => {
+                                            resolve2(newtag)
+                                        }).catch(newtag => {
+                                            reject2(newtag)
+                                        })
+                                    } else {
+                                        resolve2(tag)
+                                    }
+                                });
+                            }).then(tag => {
+                                if (tag) {
+                                    console.log('tagid', tag.get('id'))
+                                    ImgTags.findOne({
+                                        where: {
+                                            imgId: result.id,
+                                            tagId: tag.get('id')
+                                        }
+                                    }).then(imgtag => {
+                                        if (!imgtag) {
+                                            ImgTags.create({
+                                                imgId: result.id,
+                                                tagId: tag.get('id')
+                                            })
+                                        }
+                                        resolve(tag.get('id'))
+                                    }).catch(function(reason) {
+                                        reject('添加标签失败')
+                                    });
+                                } else {
+                                    reject('添加标签失败')
+                                }
+                            }).catch(function(reason) {
+                                reject(reason)
+                            });
+                        }));
+                    }
+                    let pAll = Promise.all(pList);
+                    console.log("pList", pList)
+                    pAll.then(function(posts) {
+                        lib.okRes(res, '添加标签成功！');
+                    }).catch(function(reason) {
+                        lib.errRes(res, '添加标签失败！T' + count + '=' + tags.length + ": " + reason);
                     });
-                })
+                });
             });
         })
 

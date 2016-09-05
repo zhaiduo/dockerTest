@@ -141,9 +141,9 @@ sequelize.sync()
 //Img.drop()
 Img.sync()
 User.sync()
-Tag.drop()
+//Tag.drop()
 Tag.sync()
-ImgTags.drop()
+//ImgTags.drop()
 ImgTags.sync()
 
 exports.Img = Img

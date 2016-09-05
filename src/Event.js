@@ -261,7 +261,7 @@ const modifyEvent = (event, name, attrName, fieldname) => {
     //从icon attrName获取文件名
     let tmp = event.target.getAttribute(attrName);
     let id = event.target.getAttribute('data-id');
-    if (tmp === 'null') tmp = '';
+    if (tmp.match(/^(null|undefined)$/i)) tmp = '';
     modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
     if (modalTrg[0].querySelector(fieldname).getAttribute('data-name')) modalTrg[0].querySelector(fieldname).setAttribute('data-name', tmp);
     modalTrg[0].querySelector(fieldname + '-id').setAttribute('value', id);
@@ -280,6 +280,7 @@ const remarkEvnt = (event) => {
     modalEvent(event, 'remark');
 };
 const tagEvnt = (event) => {
+    modifyEvent(event, 'tag', 'data-tag', '#tag-name');
     modalEvent(event, 'tag');
 };
 

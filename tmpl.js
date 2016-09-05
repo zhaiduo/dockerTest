@@ -1,4 +1,27 @@
 
+const express = require('express')
+const path = require('path')
+const app = express()
+const config = require('./config.js').setting[app.get('env')];
+
+// Constants
+const {
+    PORT: PORT,
+    HOST: HOST,
+    HTTP: HTTP,
+    UPLOAD_URL: UPLOAD_URL,
+    UPLOAD_DIR: UPLOAD_DIR,
+    CORS_DOMAIN: CORS_DOMAIN,
+    IMG_PREFIX: IMG_PREFIX,
+    SQL_DIR: SQL_DIR
+} = config;
+
+const db = require('./db.js')
+const Img = db.Img
+const User = db.User
+const Tag = db.Tag
+const ImgTags = db.ImgTags
+
 const lib = require('./lib.js')
 
 const htmlEscape = (str) => {
@@ -56,6 +79,45 @@ const publisDate = name => {
   }
 };
 
+/*const userInclude=(email)=> {
+        return [{
+            model: User,
+            as: 'user',
+            where: {
+                email: email
+            }
+        }];
+    }*/
+const showTags = imgId => {
+  console.log("showTags imgId", imgId)
+    let p = new Promise((resolve, reject) => {
+        Img.findOne({
+            where: {
+                id: imgId
+            }
+        }).then(img => {
+            //console.log("getTags img", img)
+            img.getTags().then(function(tags) {
+                resolve(tags)
+            })
+            //return "xxx";
+        }).catch(result => {
+            reject(null)
+        })
+    });
+    p.then(tags => {
+        let tagNames = [];
+        if (tags) {
+            for (let t of tags) {
+                tagNames.push(t.get('name'))
+            }
+            console.log("tagNames", tagNames)
+        }
+        return tagNames.join(', ')
+    })
+};
+//console.log("showTags(5)", showTags(5))
+
 exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
 <!DOCTYPE html>
 <html class="qp-ui" data-qp-ui="{
@@ -106,6 +168,9 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                           <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-remark="$${row.dataValues.option}" data-id="$${row.dataValues.id}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
                           <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-tag="$${row.dataValues.tags}" data-id="$${row.dataValues.id}" title="标签管理">&#9003;</a></li>
                         </ul>
+                        <div class="tags">标签：$${showTags(row.dataValues.id)}</div>
+                        <div class="remark">备注：$${row.dataValues.option}</div>
+
                         <span>【$${index+1}】 $${publisDate(row.dataValues.name)} </span><br>
                         <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
                         <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
