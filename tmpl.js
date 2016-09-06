@@ -56,7 +56,8 @@ const html = (literalSections, ...substs) => {
         // If the substitution is preceded by a dollar sign,
         // we escape special characters in it
         if (lit.endsWith('$')) {
-            subst = htmlEscape(subst);
+            //subst = htmlEscape(subst);
+            //subst = subst;
             lit = lit.slice(0, -1);
         }
         result += lit;
@@ -88,35 +89,7 @@ const publisDate = name => {
             }
         }];
     }*/
-const showTags = imgId => {
-  console.log("showTags imgId", imgId)
-    let p = new Promise((resolve, reject) => {
-        Img.findOne({
-            where: {
-                id: imgId
-            }
-        }).then(img => {
-            //console.log("getTags img", img)
-            img.getTags().then(function(tags) {
-                resolve(tags)
-            })
-            //return "xxx";
-        }).catch(result => {
-            reject(null)
-        })
-    });
-    p.then(tags => {
-        let tagNames = [];
-        if (tags) {
-            for (let t of tags) {
-                tagNames.push(t.get('name'))
-            }
-            console.log("tagNames", tagNames)
-        }
-        return tagNames.join(', ')
-    })
-};
-//console.log("showTags(5)", showTags(5))
+
 
 exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
 <!DOCTYPE html>
@@ -168,13 +141,13 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                           <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-remark="$${row.dataValues.option}" data-id="$${row.dataValues.id}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
                           <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-tag="$${row.dataValues.tags}" data-id="$${row.dataValues.id}" title="标签管理">&#9003;</a></li>
                         </ul>
-                        <div class="tags">标签：$${showTags(row.dataValues.id)}</div>
-                        <div class="remark">备注：$${row.dataValues.option}</div>
+                        $${more.tags['t'+row.dataValues.id] ? '<div class="tags f-size-small">标签：'+more.tags['t'+row.dataValues.id] + '</div>' : ''}
+                        $${row.dataValues.option? '<div class="remark f-size-small">备注：'+row.dataValues.option+'</div>':''}
 
                         <span>【$${index+1}】 $${publisDate(row.dataValues.name)} </span><br>
                         <span id="data_url_$${index+1}">$${row.dataValues.url}</span> <br>
                         <input type="button" name="copy_url_$${index+1}" class="copy-url" id="copy_url_$${index+1}" value="复制链接"><br>
-                        <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>] ($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
+                        <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>]($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
                         <input type="button" name="copy_md_$${index+1}" class="copy-md" id="copy_md_$${index+1}" value="复制 Markdown 格式">
                         <br>
                     </div>

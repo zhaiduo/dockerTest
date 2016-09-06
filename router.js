@@ -45,7 +45,8 @@ class Controller {
             ['id', 'DESC']
         ],
         more = {},
-        include = []
+        include = [],
+        parseBeforeCb = undefined
     } = {}) {
         tbIns.findAndCountAll({
             where: where,
@@ -54,13 +55,50 @@ class Controller {
             order: order,
             include: include
         }).then(result => {
-            //console.log('result.count', result.count);
-            //console.log('result.rows', result.rows);
             let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
             res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
         })
     }
 }
+
+const showTags = (imgId, more) => {
+  console.log("showTags imgId", imgId)
+  return new Promise((resolve3, reject3)=>{
+    let p = new Promise((resolve, reject) => {
+        Img.findOne({
+            where: {
+                id: imgId
+            }
+        }).then(img => {
+            //console.log("getTags img", img)
+            img.getTags().then(function(tags) {
+                resolve(tags)
+            })
+            //return "xxx";
+        }).catch(result => {
+            reject(null)
+        })
+    });
+    p.then(tags => {
+
+        let tagNames = [];
+        let result = more
+        if (tags) {
+            for (let t of tags) {
+                tagNames.push('<a href="/tag/'+t.get('name')+'">'+t.get('name')+'</a>')
+            }
+            console.log("tagNames", tagNames)
+        }
+        if(!result.tags) result.tags = {}
+        result.tags['t'+imgId] = tagNames.join(', ')
+        console.log("result.tags", result.tags)
+        resolve3(result)
+
+    })
+  })
+
+};
+//console.log("showTags(5)", showTags(5))
 
 class Router {
     constructor(app) {
@@ -165,19 +203,32 @@ class Router {
                         }
                     }];
                 }
-                Controller.pageList(res, Img, tmpl.indexTmpl, {
-                    cp: 1,
-                    where: {},
-                    offset: 0,
-                    eachPage: eachPage,
-                    order: [
-                        ['id', 'DESC']
-                    ],
-                    more: {
-                        link: CORS_DOMAIN
-                    },
-                    include: currentInclude
-                });
+                let more = {
+                    link: CORS_DOMAIN
+                };
+                showTags(1, more).then(more => {
+                    return showTags(2, more)
+                }).then(more => {
+                    return showTags(3, more)
+                }).then(more => {
+                    return showTags(4, more)
+                }).then(more => {
+                    return showTags(5, more)
+                }).then(more => {
+                    console.log('^^more', more);
+                    Controller.pageList(res, Img, tmpl.indexTmpl, {
+                        cp: 1,
+                        where: {},
+                        offset: 0,
+                        eachPage: eachPage,
+                        order: [
+                            ['id', 'DESC']
+                        ],
+                        more: more,
+                        include: currentInclude
+                    });
+                })
+
             })
 
         app.get('/:page', (req, res) => {

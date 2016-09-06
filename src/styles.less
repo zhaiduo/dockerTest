@@ -4680,7 +4680,8 @@ h3 {
         display: none;
         float: right;
         width: 180px;
-        margin-top: -20px !important;
+        margin-top: -10px !important;
+
         > li {
             width: 60px;
 
@@ -4690,5 +4691,29 @@ h3 {
                 padding-top: 4px;
             }
         }
+    }
+}
+li.qp-ui{
+    &:last-child{
+        .j-action-btn {
+            margin-top: -20px !important;
+        }
+    }
+}
+
+.f-size-small{
+    font-size: 14px;
+    a{
+        font-size: 14px;
+        text-decoration: underline;
+        &:hover{
+            text-decoration: none;
+        }
+    }
+}
+
+.tags{
+    a{
+        cursor:pointer;
     }
 }
