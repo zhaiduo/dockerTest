@@ -260,10 +260,17 @@ const modifyEvent = (event, name, attrName, fieldname) => {
     let modalTrg = document.getElementsByClassName('u-model-' + name);
     //从icon attrName获取文件名
     let tmp = event.target.getAttribute(attrName);
+    //console.log("attrName", fieldname, modalTrg[0].querySelector(fieldname))
     let id = event.target.getAttribute('data-id');
     if (tmp.match(/^(null|undefined)$/i)) tmp = '';
-    modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
+    if(fieldname.match(/remark/i)){
+        modalTrg[0].querySelector(fieldname).innerText = tmp;
+    }else{
+        modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
+    }
     if (modalTrg[0].querySelector(fieldname).getAttribute('data-name')) modalTrg[0].querySelector(fieldname).setAttribute('data-name', tmp);
+
+    //console.log('dataname', modalTrg[0].querySelector(fieldname).getAttribute('data-name'))
     modalTrg[0].querySelector(fieldname + '-id').setAttribute('value', id);
     pbFunc.toggleClass(modalTrg[0].querySelector(fieldname).parentNode, 'is-dirty', true);
     setTimeout(function() {
@@ -276,11 +283,11 @@ const renameEvnt = (event) => {
     modalEvent(event, 'rename');
 };
 const remarkEvnt = (event) => {
-    modifyEvent(event, 'remark', 'data-remark', '#remark-name');
+    modifyEvent(event, 'remark', 'data-name', '#remark-name');
     modalEvent(event, 'remark');
 };
 const tagEvnt = (event) => {
-    modifyEvent(event, 'tag', 'data-tag', '#tag-name');
+    modifyEvent(event, 'tag', 'data-name', '#tag-name');
     modalEvent(event, 'tag');
 };
 

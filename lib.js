@@ -109,13 +109,25 @@ const okRes = (res, msg, data = {}, headers = {}) => {
     });
 };
 
+const func = {
+    utf8_to_b64: (t) => {
+        return new Buffer(t).toString('base64');
+    },
+    b64_to_utf8: (str) => {
+        return new Buffer(str, 'base64').toString();
+    }
+};
+
 const formPostAction = (req, res, cb) => {
     let form = new formidable.IncomingForm();
     let subPromise = new Promise((resolve, reject) => {
 
         //console.log('req', req);
         form.parse(req, function(err, fields, files) {
-            //console.log("form.parse", 1);
+            for (let t in fields) {
+                fields[t] = func.b64_to_utf8(fields[t])
+            }
+            console.log("form.parse", err, fields, files);
             resolve(fields, err)
         });
 
@@ -158,7 +170,7 @@ const postDataCheckAction = (req, res, chkRules, cb) => {
                     break;
                 }
             }
-            console.log("erreFf", erreFf, fields);
+            //console.log("erreFf", erreFf, fields, isValid);
             if (isValid) {
                 if (typeof cb === 'function') cb(fields);
             } else {
@@ -254,8 +266,8 @@ const sql = {
             table.count({
                 where: where
             }).then(count => {
-                console.log("count", count, expectCount)
-                if (count > expectCount) {
+                //console.log("count", count, expectCount)
+                if (expectCount > 0 && count > expectCount) {
                     reject(count);
                 } else {
                     resolve(count)
@@ -266,8 +278,8 @@ const sql = {
 };
 
 class reqAction {
-    static go(isCanDo, actionClass){
-        if(typeof isCanDo === 'boolean' && isCanDo === true){
+    static go(isCanDo, actionClass) {
+        if (typeof isCanDo === 'boolean' && isCanDo === true) {
             let tmpClass = new actionClass();
             tmpClass.handle();
         }
@@ -289,3 +301,4 @@ exports.delCookie = delCookie
 exports.commonReg = commonReg
 exports.fsAction = fsAction
 exports.sql = sql
+exports.func = func

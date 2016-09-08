@@ -55,47 +55,63 @@ class Controller {
             order: order,
             include: include
         }).then(result => {
-            let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
-            res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
+
+            let pList = [];
+            result.rows.map((row, index) => {
+                pList.push(showTags(row.get('id'), more))
+            })
+            let pAll = Promise.all(pList);
+            //console.log("pList", pList)
+            pAll.then(function(tags) {
+                //console.log('tags', tags)
+                let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
+                res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
+            }).catch(function(reason) {
+                console.log('failed to add tags')
+            });
+
         })
     }
 }
 
 const showTags = (imgId, more) => {
-  console.log("showTags imgId", imgId)
-  return new Promise((resolve3, reject3)=>{
-    let p = new Promise((resolve, reject) => {
-        Img.findOne({
-            where: {
-                id: imgId
-            }
-        }).then(img => {
-            //console.log("getTags img", img)
-            img.getTags().then(function(tags) {
-                resolve(tags)
+    //console.log("showTags imgId", imgId)
+    return new Promise((resolve3, reject3) => {
+        let p = new Promise((resolve, reject) => {
+            Img.findOne({
+                where: {
+                    id: imgId
+                }
+            }).then(img => {
+                //console.log("getTags img", img)
+                img.getTags().then(function(tags) {
+                    resolve(tags)
+                })
+                //return "xxx";
+            }).catch(result => {
+                reject(null)
             })
-            //return "xxx";
-        }).catch(result => {
-            reject(null)
-        })
-    });
-    p.then(tags => {
+        });
+        p.then(tags => {
 
-        let tagNames = [];
-        let result = more
-        if (tags) {
-            for (let t of tags) {
-                tagNames.push('<a href="/tag/'+t.get('name')+'">'+t.get('name')+'</a>')
+            let tagNames = [];
+            let tagNamesOri = [];
+            let result = more
+            if (tags) {
+                for (let t of tags) {
+                    tagNames.push('<a href="/tag/' + t.get('name') + '">' + t.get('name') + '</a>')
+                    tagNamesOri.push(t.get('name'))
+                }
+                //console.log("tagNames", tagNames)
             }
-            console.log("tagNames", tagNames)
-        }
-        if(!result.tags) result.tags = {}
-        result.tags['t'+imgId] = tagNames.join(', ')
-        console.log("result.tags", result.tags)
-        resolve3(result)
+            if (!result.tags) result.tags = {}
+            result.tags['t' + imgId] = tagNames.join(' ')
+            result.tags['t' + imgId + 'Ori'] = tagNamesOri.join(' ')
+            //console.log("result.tags", result.tags)
+            resolve3(result)
 
+        })
     })
-  })
 
 };
 //console.log("showTags(5)", showTags(5))
@@ -188,8 +204,6 @@ class Router {
             (req, res) => {
                 //console.log("req.user", req.user)
 
-
-
                 //if (!req.user.admin) return res.sendStatus(401)
                 //console.log('Cookies: ', req.cookies);
                 let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
@@ -206,7 +220,9 @@ class Router {
                 let more = {
                     link: CORS_DOMAIN
                 };
-                showTags(1, more).then(more => {
+
+
+                /*showTags(1, more).then(more => {
                     return showTags(2, more)
                 }).then(more => {
                     return showTags(3, more)
@@ -227,7 +243,19 @@ class Router {
                         more: more,
                         include: currentInclude
                     });
-                })
+                })*/
+
+                Controller.pageList(res, Img, tmpl.indexTmpl, {
+                    cp: 1,
+                    where: {},
+                    offset: 0,
+                    eachPage: eachPage,
+                    order: [
+                        ['id', 'DESC']
+                    ],
+                    more: more,
+                    include: currentInclude
+                });
 
             })
 
@@ -261,6 +289,74 @@ class Router {
                 },
                 include: currentInclude
             });
+        })
+
+        app.get('/tag/:name', (req, res) => {
+
+            let tagName = '';
+            if (typeof req.params.name === 'string' && req.params.name.trim() !== '') tagName = req.params.name.trim();
+            console.log("tagName", tagName)
+
+            if(tagName === '') lib.errRes(res, '没有这个标签！');
+
+            let p = new Promise((resolve, reject) => {
+                Tag.findOne({
+                    where: {
+                        name: tagName
+                    }
+                }).then((tag) => {
+                    if(!tag){
+                        reject(tag)
+                    }else{
+                        resolve(tag)
+                    }
+                })
+            });
+            p.then(tag => {
+                //if (!req.user.admin) return res.sendStatus(401)
+                console.log('tag: ', tag);
+                //在这里
+                let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+                let currentInclude = [];
+                if (currentUser !== defaultUser) {
+                    /*currentInclude = [{
+                        model: User,
+                        as: 'user',
+                        where: {
+                            email: currentUser
+                        }
+                    }];*/
+                }
+                /*currentInclude.push({
+                    model: Img,
+                    as: 'img',
+                    through: {
+                        where: {
+                            id: 5
+                        }
+                    }
+                });*/
+                let more = {
+                    link: CORS_DOMAIN
+                };
+
+                Controller.pageList(res, ImgTags, tmpl.indexTmpl, {
+                    cp: 1,
+                    where: {
+                        tagId: tag.get('id')
+                    },
+                    offset: 0,
+                    eachPage: eachPage,
+                    order: [
+                        ['id', 'DESC']
+                    ],
+                    more: more,
+                    include: currentInclude
+                });
+            }).catch(tag=>{
+                lib.errRes(res, '没有这个标签！');
+            });
+
         })
 
         app.post('/' + UPLOAD_URL, (req, res) => {
@@ -595,21 +691,22 @@ class Router {
                 //最多10个标签／每图
                 let pCount = lib.sql.count(ImgTags, {
                     imgId: result.id
-                });
+                }, 10);
                 pCount.then(count => {
                     if (count >= 10) {
                         lib.errRes(res, '每个图最多添加十个标签！');
                     }
                     let tags = result.name.trim().split(' ');
-                    if (count + tags.length > 10) {
+                    if (tags.length > 10) {
                         lib.errRes(res, '每个图最多添加十个标签！');
                     }
-                    let tagMap = [];
+                    console.log('count', count, tags)
+                    /*let tagMap = [];
                     for (let item of tags) {
                         tagMap.push({
                             name: item
                         })
-                    }
+                    }*/
                     /*Tag.bulkCreate(tagMap).then(() => {
                         return Tag.findAll({
                             where: {
@@ -645,7 +742,7 @@ class Router {
                             }).then(tag => {
                                 if (tag) {
                                     console.log('tagid', tag.get('id'))
-                                    ImgTags.findOne({
+                                    return ImgTags.findOne({
                                         where: {
                                             imgId: result.id,
                                             tagId: tag.get('id')
@@ -672,9 +769,9 @@ class Router {
                     let pAll = Promise.all(pList);
                     console.log("pList", pList)
                     pAll.then(function(posts) {
-                        lib.okRes(res, '添加标签成功！');
+                        lib.okRes(res, '编辑标签成功！');
                     }).catch(function(reason) {
-                        lib.errRes(res, '添加标签失败！T' + count + '=' + tags.length + ": " + reason);
+                        lib.errRes(res, '编辑标签失败！T' + count + '=' + tags.length + ": " + reason);
                     });
                 });
             });

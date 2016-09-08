@@ -22,7 +22,7 @@ class myFetch {
         } else {
             let newFormData = [];
             for (let i in data) {
-                if (data.hasOwnProperty(i)) newFormData.push(i + '=' + data[i]);
+                if (data.hasOwnProperty(i)) newFormData.push(i + '=' + myFetch.utf8_to_b64(data[i]));
             }
             fd = newFormData.join('&');
         }
@@ -91,6 +91,14 @@ class myFetch {
                 //console.log('send err', e);
             }
         })
+    }
+
+    static utf8_to_b64(t) {
+        return window.btoa(unescape(encodeURIComponent(t)))
+    }
+    static b64_to_utf8(str) {
+        var str = str.replace(/\s/g, '');
+        return decodeURIComponent(escape(window.atob(str)));
     }
 
 }

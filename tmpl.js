@@ -138,8 +138,8 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                     <div class="info">
                         <ul class="mdl-list j-action-btn">
                           <li><a class="mdl-button mdl-js-button mdl-button--icon j-rename j-rename-$${row.dataValues.id}" data-name="$${row.dataValues.name}" data-id="$${row.dataValues.id}" title="修改文件名" href="javasript:void(0);">&#9998;</a></li>
-                          <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-remark="$${row.dataValues.option}" data-id="$${row.dataValues.id}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
-                          <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-tag="$${row.dataValues.tags}" data-id="$${row.dataValues.id}" title="标签管理">&#9003;</a></li>
+                          <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-name="$${row.dataValues.option}" data-id="$${row.dataValues.id}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
+                          <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-name="$${more.tags['t'+row.dataValues.id+'Ori']}" data-id="$${row.dataValues.id}" title="标签管理">&#9003;</a></li>
                         </ul>
                         $${more.tags['t'+row.dataValues.id] ? '<div class="tags f-size-small">标签：'+more.tags['t'+row.dataValues.id] + '</div>' : ''}
                         $${row.dataValues.option? '<div class="remark f-size-small">备注：'+row.dataValues.option+'</div>':''}
@@ -256,7 +256,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+\.[0-9a-z]{2,}$" id="rename-name" value="">
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+\.[0-9a-z]{2,}$" id="rename-name" data-name="" value="">
               <input class="mdl-textfield__input" type="hidden" id="rename-name-id" data-name="" value="">
               <label class="mdl-textfield__label" for="rename-name">图片名</label>
               <span class="mdl-textfield__error">请输入输入图片名！</span>
@@ -287,7 +287,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" pattern="^.{2,}$" id="tag-name" value="">
+              <input class="mdl-textfield__input" type="text" pattern="^.{2,}$" id="tag-name" data-name=""  value="">
               <input class="mdl-textfield__input" type="hidden" id="tag-name-id" data-name=""  value="">
               <label class="mdl-textfield__label" for="tag-name">标签名</label>
               <span class="mdl-textfield__error">请输入标签！(多个标签用空格分割)</span>
