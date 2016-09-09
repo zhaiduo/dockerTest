@@ -130,12 +130,24 @@ const ImgTags = sequelize.define('imgtags', {
     }
 })
 
-Img.belongsToMany(Tag, {
-    through: ImgTags
+/*ImgTags.belongsToMany(User, {
+    through: ImgTags,
+    foreignKey: "userId",
+    as: "user"
+});*/
+ImgTags.belongsToMany(Tag, {
+    through: ImgTags,
+    foreignKey: "tagId",
+    as: "tag"
 });
-Tag.belongsToMany(Img, {
-    through: ImgTags
+ImgTags.belongsToMany(Img, {
+    through: ImgTags,
+    foreignKey: "imgId",
+    as: "img"
 });
+
+ImgTags.belongsTo(Img);
+ImgTags.belongsTo(Tag);
 
 sequelize.sync()
 //Img.drop()

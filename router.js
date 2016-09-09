@@ -57,17 +57,19 @@ class Controller {
         }).then(result => {
 
             let pList = [];
+            console.log("result.rows", result.rows)
+            console.log("result.count", result.count)
             result.rows.map((row, index) => {
                 pList.push(showTags(row.get('id'), more))
             })
             let pAll = Promise.all(pList);
-            //console.log("pList", pList)
+            //console.log("pList", pList.length)
             pAll.then(function(tags) {
                 //console.log('tags', tags)
                 let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
                 res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
             }).catch(function(reason) {
-                console.log('failed to add tags')
+                console.log('failed to add tags', reason)
             });
 
         })
@@ -75,43 +77,44 @@ class Controller {
 }
 
 const showTags = (imgId, more) => {
-    //console.log("showTags imgId", imgId)
-    return new Promise((resolve3, reject3) => {
-        let p = new Promise((resolve, reject) => {
-            Img.findOne({
-                where: {
-                    id: imgId
-                }
-            }).then(img => {
-                //console.log("getTags img", img)
-                img.getTags().then(function(tags) {
-                    resolve(tags)
-                })
-                //return "xxx";
-            }).catch(result => {
-                reject(null)
-            })
-        });
-        p.then(tags => {
-
-            let tagNames = [];
-            let tagNamesOri = [];
-            let result = more
-            if (tags) {
-                for (let t of tags) {
-                    tagNames.push('<a href="/tag/' + t.get('name') + '">' + t.get('name') + '</a>')
-                    tagNamesOri.push(t.get('name'))
-                }
-                //console.log("tagNames", tagNames)
+    console.log("showTags imgId", imgId)
+    //return new Promise((resolve3, reject3) => {
+    let p = new Promise((resolve, reject) => {
+        Img.findOne({
+            where: {
+                id: imgId
             }
-            if (!result.tags) result.tags = {}
-            result.tags['t' + imgId] = tagNames.join(' ')
-            result.tags['t' + imgId + 'Ori'] = tagNamesOri.join(' ')
-            //console.log("result.tags", result.tags)
-            resolve3(result)
-
+        }).then(img => {
+            //console.log("getTags img", img)
+            img.getTags().then(function(tags) {
+                resolve(tags)
+            })
+            //return "xxx";
+        }).catch(result => {
+            resolve([])
         })
+    });
+    p.then(tags => {
+
+        let tagNames = [];
+        let tagNamesOri = [];
+        let result = more
+        if (tags) {
+            for (let t of tags) {
+                tagNames.push('<a href="/tag/' + t.get('name') + '">' + t.get('name') + '</a>')
+                tagNamesOri.push(t.get('name'))
+            }
+            //console.log("tagNames", tagNames)
+        }
+        if (!result.tags) result.tags = {}
+        result.tags['t' + imgId] = tagNames.join(' ')
+        result.tags['t' + imgId + 'Ori'] = tagNamesOri.join(' ')
+        //console.log("result.tags", result.tags)
+        resolve3(result)
+
     })
+    return p;
+    //})
 
 };
 //console.log("showTags(5)", showTags(5))
@@ -297,7 +300,7 @@ class Router {
             if (typeof req.params.name === 'string' && req.params.name.trim() !== '') tagName = req.params.name.trim();
             console.log("tagName", tagName)
 
-            if(tagName === '') lib.errRes(res, '没有这个标签！');
+            if (tagName === '') lib.errRes(res, '没有这个标签！');
 
             let p = new Promise((resolve, reject) => {
                 Tag.findOne({
@@ -305,9 +308,9 @@ class Router {
                         name: tagName
                     }
                 }).then((tag) => {
-                    if(!tag){
+                    if (!tag) {
                         reject(tag)
-                    }else{
+                    } else {
                         resolve(tag)
                     }
                 })
@@ -327,15 +330,14 @@ class Router {
                         }
                     }];*/
                 }
-                /*currentInclude.push({
+                currentInclude.push({
                     model: Img,
-                    as: 'img',
-                    through: {
-                        where: {
-                            id: 5
-                        }
-                    }
-                });*/
+                    as: 'img'
+                });
+                currentInclude.push({
+                    model: Tag,
+                    as: 'tag'
+                });
                 let more = {
                     link: CORS_DOMAIN
                 };
@@ -353,7 +355,7 @@ class Router {
                     more: more,
                     include: currentInclude
                 });
-            }).catch(tag=>{
+            }).catch(tag => {
                 lib.errRes(res, '没有这个标签！');
             });
 

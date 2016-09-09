@@ -72,7 +72,7 @@ const html = (literalSections, ...substs) => {
 };
 
 const publisDate = name => {
-  if(name.match(/([0-9]+)\.png$/i)){
+  if(name && name.match(/([0-9]+)\.png$/i)){
     let dt = lib.getDateObj(parseInt(RegExp.$1, 10))
     return `发布于：${dt.y}年${dt.m}月${dt.d}日 ${dt.h}时:${dt.i}分:${dt.s}秒`;
   }else{
@@ -132,6 +132,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
           <ul>
             ${rows.map((row, index) => html`
                 <li class="gweb-smoothscroll-control qp-ui">
+                    <span style="display:none;">$${row.dataValues = row.dataValues.img?row.dataValues.img:row.dataValues}</span>
                     <div class="image">
                         <div class="box"><a href="$${row.dataValues.url}" target="_blank"><span class="center-helper"></span><img src="$${row.dataValues.url}" border="0"></a></div>
                     </div>
