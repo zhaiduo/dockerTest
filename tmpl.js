@@ -125,7 +125,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
   </header>
   <div id="grid-cont">
     <section class="grid_outer chapter">
-      <h1 class="chapter-title">Welcome to Image Server! <a href="$${more.link}">&gt;&gt; 点击这里粘贴上传</a></h1>
+      <h1 class="chapter-title">$${more.title?more.title:'Welcome to Image Server! <a href="'+more.link+'">&gt;&gt; 点击这里粘贴上传</a>'}</h1>
       <div class="chapter-content">
         <nav class="chapter-toc">
           <h1>(总共$${sum}张截图，每页显示$${eachPage}张)</h1>

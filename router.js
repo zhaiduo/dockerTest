@@ -57,15 +57,15 @@ class Controller {
         }).then(result => {
 
             let pList = [];
-            console.log("result.rows", result.rows)
-            console.log("result.count", result.count)
+            //console.log("result.rows", result.rows)
+            //console.log("result.count", result.count)
             result.rows.map((row, index) => {
                 pList.push(showTags(row.get('id'), more))
             })
             let pAll = Promise.all(pList);
             //console.log("pList", pList.length)
             pAll.then(function(tags) {
-                //console.log('tags', tags)
+                console.log('list tags', tags)
                 let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
                 res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
             }).catch(function(reason) {
@@ -78,43 +78,56 @@ class Controller {
 
 const showTags = (imgId, more) => {
     console.log("showTags imgId", imgId)
-    //return new Promise((resolve3, reject3) => {
-    let p = new Promise((resolve, reject) => {
-        Img.findOne({
-            where: {
-                id: imgId
-            }
-        }).then(img => {
-            //console.log("getTags img", img)
-            img.getTags().then(function(tags) {
+    return new Promise((resolve3, reject3) => {
+        let p = new Promise((resolve, reject) => {
+            ImgTags.findAll({
+                where: {
+                    imgId: imgId
+                },
+                include: [{
+                    model: Tag,
+                    as: 'tag'
+                }]
+            }).then(tags => {
+                //console.log("getTags img", tags)
+                /*img.getTags().then(tags=> {
+                console.log("img tags", tags)
                 resolve(tags)
+            }).catch(tags=>{
+                console.log("img tags failed", tags)
+                resolve([])
+            })*/
+                let newTags = [];
+                for (let t of tags) {
+                    newTags.push(t.tag)
+                }
+                //console.log("getTags", newTags)
+                resolve(newTags)
+            }).catch(result => {
+                resolve([])
             })
-            //return "xxx";
-        }).catch(result => {
-            resolve([])
-        })
-    });
-    p.then(tags => {
+        });
+        p.then(tags => {
 
-        let tagNames = [];
-        let tagNamesOri = [];
-        let result = more
-        if (tags) {
-            for (let t of tags) {
-                tagNames.push('<a href="/tag/' + t.get('name') + '">' + t.get('name') + '</a>')
-                tagNamesOri.push(t.get('name'))
+            let tagNames = [];
+            let tagNamesOri = [];
+            let result = more
+            if (tags) {
+                for (let t of tags) {
+                    tagNames.push('<a href="/tag/' + t.get('name') + '">' + t.get('name') + '</a>')
+                    tagNamesOri.push(t.get('name'))
+                }
+                //console.log("tagNames", tagNames)
             }
-            //console.log("tagNames", tagNames)
-        }
-        if (!result.tags) result.tags = {}
-        result.tags['t' + imgId] = tagNames.join(' ')
-        result.tags['t' + imgId + 'Ori'] = tagNamesOri.join(' ')
-        //console.log("result.tags", result.tags)
-        resolve3(result)
+            if (!result.tags) result.tags = {}
+            result.tags['t' + imgId] = tagNames.join(' ')
+            result.tags['t' + imgId + 'Ori'] = tagNamesOri.join(' ')
+            //console.log("result.tags", result.tags)
+            resolve3(result)
 
+        })
+        //return p;
     })
-    return p;
-    //})
 
 };
 //console.log("showTags(5)", showTags(5))
@@ -339,7 +352,8 @@ class Router {
                     as: 'tag'
                 });
                 let more = {
-                    link: CORS_DOMAIN
+                    link: CORS_DOMAIN,
+                    title: '标签：' + tag.get('name')
                 };
 
                 Controller.pageList(res, ImgTags, tmpl.indexTmpl, {

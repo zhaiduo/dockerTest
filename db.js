@@ -130,6 +130,12 @@ const ImgTags = sequelize.define('imgtags', {
     }
 })
 
+Img.belongsToMany(Tag, {
+    through: ImgTags,
+    foreignKey: "tagId",
+    as: "tag"
+});
+
 /*ImgTags.belongsToMany(User, {
     through: ImgTags,
     foreignKey: "userId",
