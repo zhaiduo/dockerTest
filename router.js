@@ -472,10 +472,11 @@ class Router {
                             }
                             resolve(fields.email)
                         }).catch(error => {
-                            reject({
+                            /*reject({
                                 status: 'error',
                                 msg: 'user check error'
-                            })
+                            })*/
+                            resolve('guest@img.pinbot.me')
                         })
                     })
                 })
