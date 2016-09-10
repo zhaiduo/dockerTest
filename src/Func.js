@@ -569,7 +569,6 @@ class Func {
             Func.delCookie('email');
             document.querySelector('.j-layout-guest').style.display = 'block';
             document.querySelector('.j-layout-member').style.display = 'none';
-            document.querySelectorAll('.j-action-btn').style.display = 'none';
             while (i--) {
                 btns[i].style.display = 'none';
             }
