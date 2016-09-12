@@ -247,11 +247,21 @@ class Func {
         }
     }
 
+    static utf8_to_b64(t) {
+        //console.log('utf8_to_b64', t)
+        return new Buffer(t).toString('base64');
+    }
+    static b64_to_utf8(str) {
+        //console.log('b64_to_utf8', str)
+        //var str = str.replace(/\s/g, '');
+        return new Buffer(str, 'base64').toString();
+    }
+
     static setCookie(key, value, day) {
         let ckTime = (day !== undefined && typeof day === 'number') ? parseInt(day, 10) * 86400000 : 86400000;
         let expires = new Date();
         expires.setTime(expires.getTime() + ckTime);
-        document.cookie = key + '=' + value + ';expires=' + expires.toUTCString() + ';path=/;';
+        document.cookie = key + '=' + Func.utf8_to_b64(value) + ';expires=' + expires.toUTCString() + ';path=/;';
     }
 
     static delCookie(key) {
@@ -262,7 +272,7 @@ class Func {
 
     static getCookie(key) {
         let keyValue = document.cookie.match('(^|;) ?' + key + '=([^; ]*)(;|$)');
-        return (keyValue && keyValue[2]) ? keyValue[2] : null;
+        return (keyValue && keyValue[2]) ? Func.b64_to_utf8(keyValue[2]) : null;
     }
 
     static modalAction(modalAlert, btnFunc, $scope, btnCloseFunc, isDisableScroll) {

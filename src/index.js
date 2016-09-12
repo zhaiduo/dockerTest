@@ -9,9 +9,11 @@ import {
 from './Func';
 
 import * as pbEvt from './Event';
+const userDefault = 'guest@img.pinbot.me';
 
 window.onload = function(event) {
-    if (pbFunc.getCookie('email')) {
+    //console.log('getCookie', pbFunc.getCookie('email'))
+    if (pbFunc.getCookie('email') && pbFunc.getCookie('email') !== userDefault) {
         pbFunc.toggleUserLayout(true);
     } else {
         pbFunc.toggleUserLayout(false);

@@ -65,7 +65,7 @@ class Controller {
             let pAll = Promise.all(pList);
             //console.log("pList", pList.length)
             pAll.then(function(tags) {
-                console.log('list tags', tags)
+                //console.log('list tags', tags)
                 let reloadScriptHtml = (app.get('env') === 'development') ? '<script src="/reload/reload.js"></script>' : ''
                 res.send(tmplCb(result.count, cp, eachPage, result.rows, more) + reloadScriptHtml)
             }).catch(function(reason) {
@@ -76,8 +76,16 @@ class Controller {
     }
 }
 
+const getEmail = email => {
+    return lib.func.b64_to_utf8(email)
+};
+
+const getCurrentUser = req => {
+    return (req.cookies.email && getEmail(req.cookies.email).match(lib.commonReg.email)) ? getEmail(req.cookies.email) : defaultUser;
+};
+
 const showTags = (imgId, more) => {
-    console.log("showTags imgId", imgId)
+    //console.log("showTags imgId", imgId)
     return new Promise((resolve3, reject3) => {
         let p = new Promise((resolve, reject) => {
             ImgTags.findAll({
@@ -222,7 +230,7 @@ class Router {
 
                 //if (!req.user.admin) return res.sendStatus(401)
                 //console.log('Cookies: ', req.cookies);
-                let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+                let currentUser = getCurrentUser(req);
                 let currentInclude = [];
                 if (currentUser !== defaultUser) {
                     currentInclude = [{
@@ -281,7 +289,7 @@ class Router {
             let cp = 1
             if (typeof req.params.page === 'string' && req.params.page.match(/^[0-9]+$/i)) cp = req.params.page;
             let offset = eachPage * (parseInt(cp, 10) - 1);
-            let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+            let currentUser = getCurrentUser(req);
             let currentInclude = [];
             if (currentUser !== defaultUser) {
                 currentInclude = [{
@@ -332,7 +340,7 @@ class Router {
                 //if (!req.user.admin) return res.sendStatus(401)
                 console.log('tag: ', tag);
                 //在这里
-                let currentUser = (req.cookies.email && req.cookies.email.match(lib.commonReg.email)) ? req.cookies.email : defaultUser;
+                let currentUser = getCurrentUser(req);
                 let currentInclude = [];
                 if (currentUser !== defaultUser) {
                     /*currentInclude = [{
@@ -554,8 +562,8 @@ class Router {
                         /*let token = jwt.sign({
                             email: result.email
                         }, jwtSecret);*/
-                        console.log('token', jwt);
-                        lib.okRes(res, '登录成功！', {}, lib.setCookie('email', result.email, 365));
+                        console.log('result.email', result.email);
+                        lib.okRes(res, '登录成功！', {}, lib.setCookie('email', lib.func.utf8_to_b64(result.email), 365));
                     } else {
                         //lib.setCookie('email', 'test' + result.email, 365)
                         lib.errRes(res, '登录失败！');
@@ -609,7 +617,7 @@ class Router {
         app.post('/rename', (req, res) => {
             //console.log('Cookies: ', req.cookies)
             //lib.errRes(res, '系统维护中！');
-            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            if (!req.cookies || !req.cookies.email || !getEmail(req.cookies.email).match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
             lib.postDataCheckAction(req, res, renameCheckArr, result => {
                 console.log("rename", result);
                 let newName = '';
@@ -622,7 +630,7 @@ class Router {
                     where: {
                         id: result.id
                     },
-                    include: Router.userInclude(req.cookies.email)
+                    include: Router.userInclude(getEmail(req.cookies.email))
                 }).then(function(img) {
                     if (!img) lib.errRes(res, '没有这个图片！');
                     //console.log("findOne img", img.get('url'));
@@ -648,7 +656,7 @@ class Router {
                                 url: newUrl
                             }, {
                                 id: img.get('id')
-                            }, Router.userInclude(req.cookies.email));
+                            }, Router.userInclude(getEmail(req.cookies.email)));
                             promise2.then(result => {
                                 console.log('修改文件名成功！', result);
                                 lib.okRes(res, '修改成功！');
@@ -671,7 +679,7 @@ class Router {
         app.post('/remark', (req, res) => {
             //console.log('Cookies: ', req.cookies)
             //lib.errRes(res, '系统维护中！');
-            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            if (!req.cookies || !req.cookies.email || !getEmail(req.cookies.email).match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
             lib.postDataCheckAction(req, res, remarkCheckArr, result => {
                 console.log("remark", result);
                 if (!result.id || !result.option) lib.errRes(res, '备注丢失！');
@@ -679,7 +687,7 @@ class Router {
                     where: {
                         id: result.id
                     },
-                    include: Router.userInclude(req.cookies.email)
+                    include: Router.userInclude(getEmail(req.cookies.email))
                 }).then(function(img) {
                     if (!img) lib.errRes(res, '没有这个图片！');
                     //console.log("findOne img", img.get('url'));
@@ -687,7 +695,7 @@ class Router {
                         option: result.option
                     }, {
                         id: img.get('id')
-                    }, Router.userInclude(req.cookies.email));
+                    }, Router.userInclude(getEmail(req.cookies.email)));
                     promise2.then(result => {
                         console.log('修改备注成功！', result);
                         lib.okRes(res, '修改备注成功！');
@@ -701,7 +709,7 @@ class Router {
         app.post('/tagname', (req, res) => {
             //console.log('Cookies: ', req.cookies)
             //lib.errRes(res, '系统维护中！');
-            if (!req.cookies || !req.cookies.email || !req.cookies.email.match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            if (!req.cookies || !req.cookies.email || !getEmail(req.cookies.email).match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
             lib.postDataCheckAction(req, res, tagnameCheckArr, result => {
                 console.log("tagname", result);
                 if (!result.id || !result.name) lib.errRes(res, '标签丢失！');
