@@ -284,7 +284,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
         <span class="close-modal">
           <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
         </span>
-        <h3 class="title">标签管理<span>(每个图片最多十个标签)</span></h3>
+        <h3 class="title">标签管理<span>(每个图片最多十个标签，多个标签用空格分割)</span></h3>
         <div class="content">
           <form>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">

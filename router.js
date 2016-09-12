@@ -712,95 +712,115 @@ class Router {
             if (!req.cookies || !req.cookies.email || !getEmail(req.cookies.email).match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
             lib.postDataCheckAction(req, res, tagnameCheckArr, result => {
                 console.log("tagname", result);
-                if (!result.id || !result.name) lib.errRes(res, '标签丢失！');
-                //最多10个标签／每图
-                let pCount = lib.sql.count(ImgTags, {
-                    imgId: result.id
-                }, 10);
-                pCount.then(count => {
-                    if (count >= 10) {
-                        lib.errRes(res, '每个图最多添加十个标签！');
-                    }
-                    console.log("result.name", result.name)
-                    let tags = result.name.trim().split(/[ ,]/i);
-                    console.log("result.tags", tags)
-                    if (tags.length > 10) {
-                        lib.errRes(res, '每个图最多添加十个标签！');
-                    }
-                    console.log('count', count, tags)
-                    /*let tagMap = [];
-                    for (let item of tags) {
-                        tagMap.push({
-                            name: item
-                        })
-                    }*/
-                    /*Tag.bulkCreate(tagMap).then(() => {
-                        return Tag.findAll({
+                if (!result.id) lib.errRes(res, '标签丢失！');
+
+                if (result.name === '' || result.name.match(/^(null|undefined)$/i)) {
+                    //清空标签
+                    Img.findOne({
+                        where: {
+                            id: result.id
+                        },
+                        include: Router.userInclude(getEmail(req.cookies.email))
+                    }).then(function(img) {
+                        ImgTags.destroy({
                             where: {
-                                name: {
-                                    $in: tags
-                                }
+                                imgId: result.id
                             }
                         });
-                    }).then(function(tagAll) {
-                        console.log('tagAll', tagAll)
-                    })*/
-                    let pList = [];
-                    for (let item of tags) {
-                        pList.push(new Promise((resolve, reject) => {
-                            Tag.findOne({
+                        lib.okRes(res, '清空标签成功！');
+                    }).catch(function(img) {
+                        lib.errRes(res, '无效操作！');
+                    })
+                } else {
+                    //最多10个标签／每图
+                    let pCount = lib.sql.count(ImgTags, {
+                        imgId: result.id
+                    }, 10);
+                    pCount.then(count => {
+                        if (count >= 10) {
+                            lib.errRes(res, '每个图最多添加十个标签！');
+                        }
+                        console.log("result.name", result.name)
+                        let tags = result.name.trim().split(/[ ,]/i);
+                        console.log("result.tags", tags)
+                        if (tags.length > 10) {
+                            lib.errRes(res, '每个图最多添加十个标签！');
+                        }
+                        console.log('count', count, tags)
+                        /*let tagMap = [];
+                        for (let item of tags) {
+                            tagMap.push({
+                                name: item
+                            })
+                        }*/
+                        /*Tag.bulkCreate(tagMap).then(() => {
+                            return Tag.findAll({
                                 where: {
-                                    name: item
-                                }
-                            }).then((tag) => {
-                                return new Promise((resolve2, reject2) => {
-                                    if (!tag) {
-                                        Tag.create({
-                                            name: item
-                                        }).then(newtag => {
-                                            resolve2(newtag)
-                                        }).catch(newtag => {
-                                            reject2(newtag)
-                                        })
-                                    } else {
-                                        resolve2(tag)
+                                    name: {
+                                        $in: tags
                                     }
-                                });
-                            }).then(tag => {
-                                if (tag) {
-                                    console.log('tagid', tag.get('id'))
-                                    return ImgTags.findOne({
-                                        where: {
-                                            imgId: result.id,
-                                            tagId: tag.get('id')
+                                }
+                            });
+                        }).then(function(tagAll) {
+                            console.log('tagAll', tagAll)
+                        })*/
+                        let pList = [];
+                        for (let item of tags) {
+                            pList.push(new Promise((resolve, reject) => {
+                                Tag.findOne({
+                                    where: {
+                                        name: item
+                                    }
+                                }).then((tag) => {
+                                    return new Promise((resolve2, reject2) => {
+                                        if (!tag) {
+                                            Tag.create({
+                                                name: item
+                                            }).then(newtag => {
+                                                resolve2(newtag)
+                                            }).catch(newtag => {
+                                                reject2(newtag)
+                                            })
+                                        } else {
+                                            resolve2(tag)
                                         }
-                                    }).then(imgtag => {
-                                        if (!imgtag) {
-                                            ImgTags.create({
+                                    });
+                                }).then(tag => {
+                                    if (tag) {
+                                        console.log('tagid', tag.get('id'))
+                                        return ImgTags.findOne({
+                                            where: {
                                                 imgId: result.id,
                                                 tagId: tag.get('id')
-                                            })
-                                        }
-                                        resolve(tag.get('id'))
-                                    }).catch(function(reason) {
+                                            }
+                                        }).then(imgtag => {
+                                            if (!imgtag) {
+                                                ImgTags.create({
+                                                    imgId: result.id,
+                                                    tagId: tag.get('id')
+                                                })
+                                            }
+                                            resolve(tag.get('id'))
+                                        }).catch(function(reason) {
+                                            reject('添加标签失败')
+                                        });
+                                    } else {
                                         reject('添加标签失败')
-                                    });
-                                } else {
-                                    reject('添加标签失败')
-                                }
-                            }).catch(function(reason) {
-                                reject(reason)
-                            });
-                        }));
-                    }
-                    let pAll = Promise.all(pList);
-                    console.log("pList", pList)
-                    pAll.then(function(posts) {
-                        lib.okRes(res, '编辑标签成功！');
-                    }).catch(function(reason) {
-                        lib.errRes(res, '编辑标签失败！T' + count + '=' + tags.length + ": " + reason);
+                                    }
+                                }).catch(function(reason) {
+                                    reject(reason)
+                                });
+                            }));
+                        }
+                        let pAll = Promise.all(pList);
+                        console.log("pList", pList)
+                        pAll.then(function(posts) {
+                            lib.okRes(res, '编辑标签成功！');
+                        }).catch(function(reason) {
+                            lib.errRes(res, '编辑标签失败！T' + count + '=' + tags.length + ": " + reason);
+                        });
                     });
-                });
+                }
             });
         })
 

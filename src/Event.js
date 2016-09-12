@@ -375,7 +375,7 @@ const remarkSubmitEvnt = (event) => {
 
 const tagCheckArr = [{
     name: 'tag-name',
-    required: true,
+    required: false,
     reg: new RegExp("^[\\S\\s]{1,250}$", "i"),
     msg: '请输入标签(多个标签用空格分割)！'
 }];
