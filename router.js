@@ -721,7 +721,9 @@ class Router {
                     if (count >= 10) {
                         lib.errRes(res, '每个图最多添加十个标签！');
                     }
-                    let tags = result.name.trim().split(' ');
+                    console.log("result.name", result.name)
+                    let tags = result.name.trim().split(/[ ,]/i);
+                    console.log("result.tags", tags)
                     if (tags.length > 10) {
                         lib.errRes(res, '每个图最多添加十个标签！');
                     }
