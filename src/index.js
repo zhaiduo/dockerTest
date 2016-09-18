@@ -23,6 +23,7 @@ window.onload = function(event) {
 pbFunc.bindElemsByNameArr([
     '.copy-url',
     '.copy-md',
+    '.copy-html',
     '.link-login',
     '.link-register',
     '.close-modal',
@@ -37,6 +38,7 @@ pbFunc.bindElemsByNameArr([
     '.j-submit-remark',
     '.j-submit-tag'
 ], "click", [
+    pbEvt.copyEvnt,
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
     pbEvt.loginEvnt,

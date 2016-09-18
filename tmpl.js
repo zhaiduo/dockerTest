@@ -151,6 +151,8 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                         <span id="data_md_$${index+1}">![<span title="可编辑" contenteditable="true">$${row.dataValues.category}截图</span>]($${row.dataValues.url} "$${row.dataValues.name}")</span> <br>
                         <input type="button" name="copy_md_$${index+1}" class="copy-md" id="copy_md_$${index+1}" value="复制 Markdown 格式">
                         <br>
+                        <span id="data_html_$${index+1}"><span title="可编辑" contenteditable="true">&lt;img src="$${row.dataValues.url}" alt="$${row.dataValues.category}截图 - $${row.dataValues.name}"&gt;</span></span> <br>
+                        <input type="button" name="copy_html_$${index+1}" class="copy-html" id="copy_html_$${index+1}" value="复制 HTML 格式">
                     </div>
                 </li>
             `)}

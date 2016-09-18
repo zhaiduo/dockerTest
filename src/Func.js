@@ -526,7 +526,7 @@ class Func {
         if (elem && elem.getAttribute('id')) {
             let id = elem.getAttribute('id');
             let trg = '';
-            if (id.match(/^copy_(url|md)_([0-9]+)$/i)) {
+            if (id.match(/^copy_(url|md|html)_([0-9]+)$/i)) {
                 trg = RegExp.$1;
                 id = RegExp.$2;
             }

@@ -86,6 +86,7 @@ class myFetch {
                 reject(e);
             };
             try {
+                console.log('send fd', fd);
                 xhr.send(fd);
             } catch (e) {
                 //console.log('send err', e);
@@ -93,6 +94,7 @@ class myFetch {
         })
     }
 
+    //base64会包含 + / =
     static utf8_to_b64(t) {
         return new Buffer(t).toString('base64');
     }
