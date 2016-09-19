@@ -125,6 +125,7 @@ const formPostAction = (req, res, cb) => {
 
         //console.log('req', req);
         form.parse(req, function(err, fields, files) {
+            console.log('fields', fields);
             for (let t in fields) {
                 fields[t] = func.b64_to_utf8(fields[t])
             }
