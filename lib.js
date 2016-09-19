@@ -115,7 +115,7 @@ const func = {
     },
     b64_to_utf8: (str) => {
         str = str.trim().replace(/[\s]/ig, '+')
-        return new Buffer(str, 'base64').toString();
+        return new Buffer(str, 'base64').toString("ascii");
     }
 };
 
