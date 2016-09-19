@@ -21,6 +21,7 @@ window.onload = function(event) {
 };
 
 pbFunc.bindElemsByNameArr([
+    '#link-logo',
     '.copy-url',
     '.copy-md',
     '.copy-html',
@@ -34,10 +35,13 @@ pbFunc.bindElemsByNameArr([
     '.j-rename',
     '.j-remark',
     '.j-tag',
+    '.j-del',
     '.j-submit-rename',
     '.j-submit-remark',
-    '.j-submit-tag'
+    '.j-submit-tag',
+    '.j-submit-del'
 ], "click", [
+    pbEvt.homeEvnt,
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
     pbEvt.copyEvnt,
@@ -51,7 +55,9 @@ pbFunc.bindElemsByNameArr([
     pbEvt.renameEvnt,
     pbEvt.remarkEvnt,
     pbEvt.tagEvnt,
+    pbEvt.delEvnt,
     pbEvt.renameSubmitEvnt,
     pbEvt.remarkSubmitEvnt,
-    pbEvt.tagSubmitEvnt
+    pbEvt.tagSubmitEvnt,
+    pbEvt.delSubmitEvnt
 ])

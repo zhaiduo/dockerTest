@@ -77,6 +77,7 @@ class Controller {
 }
 
 const getEmail = email => {
+    console.log("getEmail", lib.func.b64_to_utf8(email))
     return lib.func.b64_to_utf8(email)
 };
 
@@ -672,6 +673,50 @@ class Router {
                     }).catch(result => {
                         lib.errRes(res, '图片已存在！');
                     });
+                })
+            });
+        })
+
+        app.post('/del', (req, res) => {
+            //console.log('Cookies: ', req.cookies)
+            //lib.errRes(res, '系统维护中！');
+            if (!req.cookies || !req.cookies.email || !getEmail(req.cookies.email).match(lib.commonReg.email)) lib.errRes(res, '请先登录！');
+            lib.postDataCheckAction(req, res, renameCheckArr, result => {
+                console.log("del", result);
+                let imgPath = '';
+                if (!result.id || !result.name || !result.name.match(/^([0-9a-z_\-]+)\.([0-9a-z]+)$/i)) lib.errRes(res, '无效图片名！');
+
+                Img.findOne({
+                    where: {
+                        id: result.id
+                    },
+                    include: Router.userInclude(getEmail(req.cookies.email))
+                }).then(function(img) {
+                    if (!img) lib.errRes(res, '没有这个图片！');
+                    //console.log("findOne img", img.get('url'), result);
+
+                    if (!img.get('url') || !img.get('url').match(/^(.+)(\/uploads\/)([0-9]+\/[0-9]+\/[0-9]+\/)([^\/]+)$/i)) lib.errRes(res, '图片名无效！');
+                    imgPath = __dirname + '/uploads/' + RegExp.$3 + RegExp.$4;
+                    //删除文件
+                    let act = lib.fsAction.del(imgPath);
+                    act.then(result2 => {
+                        Img.destroy({
+                            where: {
+                                id: result.id
+                            },
+                            include: Router.userInclude(getEmail(req.cookies.email))
+                        }).then(function() {
+                            ImgTags.destroy({
+                                where: {
+                                    imgId: result.id
+                                }
+                            });
+                            lib.okRes(res, '删除图片成功！');
+                        })
+                    }).catch(result => {
+                        lib.errRes(res, '删除图片失败！');
+                    });
+
                 })
             });
         })

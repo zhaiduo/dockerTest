@@ -114,6 +114,7 @@ const func = {
         return new Buffer(t).toString('base64');
     },
     b64_to_utf8: (str) => {
+        str = str.trim().replace(/[\s]/ig, '+')
         return new Buffer(str, 'base64').toString();
     }
 };
@@ -125,7 +126,7 @@ const formPostAction = (req, res, cb) => {
         //console.log('req', req);
         form.parse(req, function(err, fields, files) {
             for (let t in fields) {
-                fields[t] = func.b64_to_utf8(fields[t].trim().replace(/[\s]/ig, '+'))
+                fields[t] = func.b64_to_utf8(fields[t])
             }
             console.log("form.parse", err, fields, files);
             resolve(fields, err)

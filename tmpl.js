@@ -110,13 +110,15 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
     <header>
       <div class="header-wrapper">
         <div class="header-title">
-        <span class="section-title"><a href="/"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></a></span>
+        <span class="section-title"><a id="link-logo" href="javascript:void(0);"><img src="https://www.pinbot.me/static/b_index/img/new_logo.png" border="0" style="width: 120px;margin: 10px 0px 20px 0px;"></a></span>
         <span class="chapter-title"></span>
         <div class="j-layout-guest">
+          <a class="f-top-btn f-float-right link-home" href="/"><i class="material-icons"></i>主页</a>
           <a class="f-top-btn f-float-right link-login" href="javascript:void(0);"><i class="material-icons"></i>登录</a>
           <a class="f-top-btn f-float-right link-register" href="javascript:void(0);"><i class="material-icons"></i>注册</a>
         </div>
         <div class="j-layout-member">
+          <a class="f-top-btn f-float-right link-home" href="/"><i class="material-icons"></i>主页</a>
           <a class="f-top-btn f-float-right link-logout" href="javascript:void(0);"><i class="material-icons"></i>退出</a>
           <a class="f-top-btn f-float-right link-hello" href="javascript:void(0);"><i class="material-icons"></i><span class="j-user-email"></span></a>
         </div>
@@ -141,6 +143,7 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
                           <li><a class="mdl-button mdl-js-button mdl-button--icon j-rename j-rename-$${row.dataValues.id}" data-name="$${row.dataValues.name}" data-id="$${row.dataValues.id}" title="修改文件名" href="javasript:void(0);">&#9998;</a></li>
                           <li><a class="mdl-button mdl-js-button mdl-button--icon j-remark j-remark-$${row.dataValues.id}" data-name="$${row.dataValues.option}" data-id="$${row.dataValues.id}" href="javasript:void(0);" title="修改备注">&#128456;</a></li>
                           <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-tag j-tag-$${row.dataValues.id}" data-name="$${more.tags['t'+row.dataValues.id+'Ori']}" data-id="$${row.dataValues.id}" title="标签管理">&#9003;</a></li>
+                          <li><a href="javasript:void(0);" class="mdl-button mdl-js-button mdl-button--icon j-del j-del-$${row.dataValues.id}" data-name="$${row.dataValues.name}" data-id="$${row.dataValues.id}" title="删除图片">&#66327;</a></li>
                         </ul>
                         $${more.tags['t'+row.dataValues.id] ? '<div class="tags f-size-small">标签：'+more.tags['t'+row.dataValues.id] + '</div>' : ''}
                         $${row.dataValues.option? '<div class="remark f-size-small">备注：'+row.dataValues.option+'</div>':''}
@@ -338,6 +341,37 @@ exports.indexTmpl = (sum, cp, eachPage, rows, more) => html`
           </button>
           <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-remark">
             确定
+          </button>
+          <p></p>
+        </div>
+      </dialog>
+    </div>
+
+    <div class="qp-ui-mask-modal u-model u-model-del">
+      <dialog class="u-dialog u-dialog-del">
+        <span class="close-modal">
+          <button class="mdl-button mdl-js-button mdl-button--icon">X</button>
+        </span>
+        <h3 class="title">删除图片</h3>
+        <div class="content">
+          <form>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" pattern="^[0-9a-z_\.\-]+\.[0-9a-z]{2,}$" id="del-name" data-name="" value="" readonly >
+              <input class="mdl-textfield__input" type="hidden" id="del-name-id" data-name="" value="">
+              <label class="mdl-textfield__label" for="del-name">确定删除图片？</label>
+              <span class="mdl-textfield__error">请输入图片名！</span>
+              <span class="mdl-textfield__res"></span>
+            </div>
+          </form>
+        </div>
+        <div class="actions">
+          <span class="mdl-form__res"></span>
+          <div class="mdl-spinner mdl-js-spinner"></div>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent j-close">
+            取消
+          </button>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored j-submit-del">
+            确定删除
           </button>
           <p></p>
         </div>

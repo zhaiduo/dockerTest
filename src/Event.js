@@ -23,6 +23,12 @@ if(req) req.then(result => {
     console.log('catchx', result);
 })*/
 
+const homeEvnt = $event => {
+    //console.log("homeEvnt", $event)
+    let elem = $event.target;
+    document.location.href = (document.location.href.toString().match(/img\.pinbot\.me/i)) ? 'http://img.pinbot.me:8088/' : 'http://localhost:8088/';
+};
+
 const evtHandler = (event, cb, ...args) => {
     event.stopPropagation();
     cb(event, args);
@@ -263,9 +269,9 @@ const modifyEvent = (event, name, attrName, fieldname) => {
     //console.log("attrName", fieldname, modalTrg[0].querySelector(fieldname))
     let id = event.target.getAttribute('data-id');
     if (tmp.match(/^(null|undefined)$/i)) tmp = '';
-    if(fieldname.match(/remark/i)){
+    if (fieldname.match(/remark/i)) {
         modalTrg[0].querySelector(fieldname).innerText = tmp;
-    }else{
+    } else {
         modalTrg[0].querySelector(fieldname).setAttribute('value', tmp);
     }
     if (modalTrg[0].querySelector(fieldname).getAttribute('data-name')) modalTrg[0].querySelector(fieldname).setAttribute('data-name', tmp);
@@ -289,6 +295,10 @@ const remarkEvnt = (event) => {
 const tagEvnt = (event) => {
     modifyEvent(event, 'tag', 'data-name', '#tag-name');
     modalEvent(event, 'tag');
+};
+const delEvnt = (event) => {
+    modifyEvent(event, 'del', 'data-name', '#del-name');
+    modalEvent(event, 'del');
 };
 
 const renameCheckArr = [{
@@ -318,6 +328,44 @@ const renameSubmitEvnt = (event) => {
             name: args[0].querySelector("#rename-name").value
         }, (result) => {
             pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '修改图片名称成功!', 'is-success')
+            setTimeout(() => {
+                pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
+                //关闭弹窗
+                pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
+            }, 3000);
+        }, (result) => {
+            //提示错误
+            /*args[0].querySelector("#password").value = '';
+            setTimeout(() => {
+                pbFunc.resetForm(args[0]);
+            }, 3000);*/
+
+        });
+
+    }, null);
+};
+
+const delCheckArr = [{
+    name: 'del-name',
+    required: true,
+    reg: new RegExp("^[0-9a-z_\\.\\-]+\\.[0-9a-z]{2,}$", "i"),
+    msg: '请输入图片名！'
+}];
+const delSubmitEvnt = (event) => {
+    //console.log('delSubmitEvnt', event);
+    submitEvnt(event, (event, ...args) => {
+        //console.log('delSubmitEvnt2', event, args);
+
+        //前端错误处理
+        let formChkOk = textfieldErrHandlerByRules(args[0], delCheckArr);
+        if (!formChkOk) return false;
+
+        //后端响应处理
+        formSubmitResHandler(args[0], ".j-submit-del", '/del', {
+            id: args[0].querySelector("#del-name-id").value,
+            name: args[0].querySelector("#del-name").value
+        }, (result) => {
+            pbFunc.resetFormElem(args[0].querySelector('.actions'), true, '删除图片名称成功!', 'is-success')
             setTimeout(() => {
                 pbFunc.resetFormElem(args[0].querySelector('.actions'), false, '', 'is-success')
                 //关闭弹窗
@@ -412,6 +460,7 @@ const tagSubmitEvnt = (event) => {
 };
 
 export {
+    homeEvnt,
     copyEvnt,
     loginEvnt,
     registerEvnt,
@@ -422,9 +471,11 @@ export {
     renameEvnt,
     remarkEvnt,
     tagEvnt,
+    delEvnt,
     remarkSubmitEvnt,
     tagSubmitEvnt,
     renameSubmitEvnt,
     remarkSubmitEvnt,
-    tagSubmitEvnt
+    tagSubmitEvnt,
+    delSubmitEvnt
 }
