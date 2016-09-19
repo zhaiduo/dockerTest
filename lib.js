@@ -117,7 +117,7 @@ const func = {
         //console.log('b64_to_utf80', str);
         str = str.trim().replace(/[\s]/ig, '+')
         //console.log('b64_to_utf81', str);
-        return new Buffer(str, 'base64').toString();
+        return new Buffer(str, 'base64').toString('utf8');
     }
 };
 
