@@ -219,7 +219,7 @@ const fsAction = {
             fs.unlink(filename, function(err) {
                 if (err) {
                     //throw err;
-                    reject({
+                    resolve({
                         status: 'error',
                         msg: 'unlink failed'
                     })
