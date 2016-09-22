@@ -11,6 +11,7 @@
     "build": "BUILD_DEV=0 ./node_modules/webpack/bin/webpack.js -p"
   },
   "dependencies": {
+    "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
     "css-loader": "^0.23.1",
     "express": "^4.13.3",

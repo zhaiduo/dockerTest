@@ -73,6 +73,11 @@ const Img = sequelize.define('img', {
             type: Sequelize.INTEGER,
             model: 'user',
             key: 'id'
+        },
+        is_delete: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     })
     /*

@@ -216,7 +216,8 @@ const commonReg = {
 const fsAction = {
     del: (filename) => {
         return new Promise((resolve, reject) => {
-            fs.unlink(filename, function(err) {
+            //暂不删除
+            /*fs.unlink(filename, function(err) {
                 if (err) {
                     //throw err;
                     resolve({
@@ -229,7 +230,11 @@ const fsAction = {
                         msg: 'unlink ok'
                     })
                 }
-            });
+            });*/
+            resolve({
+                status: 'ok',
+                msg: 'unlink ok'
+            })
         });
     },
     rename: (fromNamr, toName) => {

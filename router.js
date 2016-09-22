@@ -7,6 +7,8 @@ const mkdirp = require('mkdirp')
 const jwt = require('express-jwt');
 const app = express();
 const formidable = require('formidable')
+const compression = require('compression');
+
 const config = require('./config.js').setting[app.get('env')];
 
 // Constants
@@ -176,6 +178,20 @@ class Router {
             msg: '请输入标签(多个标签用空格分割)！'
         }];
 
+        const shouldCompress = (req, res) => {
+            if (req.headers['x-no-compression']) {
+                // don't compress responses with this request header
+                return false
+            }
+            // fallback to standard filter function
+            return compression.filter(req, res)
+        }
+
+        // gzip/deflate outgoing responses
+        app.use(compression({
+            filter: shouldCompress
+        }))
+
         // Add headers
         app.use((req, res, next) => {
 
@@ -195,7 +211,32 @@ class Router {
             // Pass to next layer of middleware
             next()
         })
+
+        //静态中间件
+        app.use('/' + UPLOAD_DIR, (req, res, next) => {
+            ///uploads/2016/9/22/blob_1474556319698.png
+            if (req.url.match(/\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([0-9a-z\._\-]+)$/i)) {
+                let imgName = RegExp.$4;
+                Img.findOne({
+                    where: {
+                        name: imgName,
+                        is_delete: 1
+                    }
+                }).then(function(img) {
+                    //console.log("static img", img)
+                    if (img) {
+                        return res.status(404).end('404 No Found')
+                    } else {
+                        next()
+                    }
+                })
+            }
+
+        })
         app.use('/' + UPLOAD_DIR, express.static(UPLOAD_DIR))
+
+        // New call to compress content
+
         app.use('/static', express.static('static'))
 
         //http://www.infoq.com/cn/articles/quit-scheme-of-node-uncaughtexception-emergence
@@ -272,7 +313,9 @@ class Router {
 
                 Controller.pageList(res, Img, tmpl.indexTmpl, {
                     cp: 1,
-                    where: {},
+                    where: {
+                        is_delete: 0
+                    },
                     offset: 0,
                     eachPage: eachPage,
                     order: [
@@ -303,7 +346,9 @@ class Router {
             }
             Controller.pageList(res, Img, tmpl.indexTmpl, {
                 cp: cp,
-                where: {},
+                where: {
+                    is_delete: 0
+                },
                 offset: offset,
                 eachPage: eachPage,
                 order: [
@@ -354,7 +399,10 @@ class Router {
                 }
                 currentInclude.push({
                     model: Img,
-                    as: 'img'
+                    as: 'img',
+                    where: {
+                        is_delete: 0
+                    }
                 });
                 currentInclude.push({
                     model: Tag,
@@ -700,7 +748,10 @@ class Router {
                     //删除文件
                     let act = lib.fsAction.del(imgPath);
                     act.then(result2 => {
-                        Img.destroy({
+                        //Img.destroy({
+                        Img.update({
+                            is_delete: 1
+                        }, {
                             where: {
                                 id: result.id
                             },
