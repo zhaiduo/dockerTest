@@ -4,7 +4,8 @@ const express = require('express');
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
-const jwt = require('express-jwt');
+    //const jwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 const app = express();
 const formidable = require('formidable')
 const compression = require('compression');
@@ -598,25 +599,39 @@ class Router {
             console.log("/login", req);
 
             lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
-                console.log("login", result)
+                //console.log("login", result)
                 User.findOne({
                     where: {
                         email: result.email,
                         password: result.password
                     }
                 }).then(function(user) {
-                    console.log("findOne", user)
-                    if (user) {
-                        let jwtSecret = 'fds9cxzcafs2';
-                        /*let token = jwt.sign({
-                            email: result.email
-                        }, jwtSecret);*/
+                    //console.log("findOne", user)
+
+                    const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
+                    // get private key
+                    jwt.sign({
+                        email: (user) ? result.email : defaultUser
+                    }, {
+                        key: cert,
+                        passphrase: 'adamgogogo'
+                    }, {
+                        algorithm: 'RS256'
+                    }, function(err, token) {
+                        //console.log("jwt", err, token)
+                        if (err) {
+                            lib.errRes(res, '创建token失败！');
+                        } else {
+                            lib.okRes(res, '创建token成功！', {}, lib.setCookie('email', token, 365));
+                        }
+                    });
+                    /*if (user) {
                         console.log('result.email', result.email);
                         lib.okRes(res, '登录成功！', {}, lib.setCookie('email', lib.func.utf8_to_b64(result.email), 365));
                     } else {
                         //lib.setCookie('email', 'test' + result.email, 365)
                         lib.errRes(res, '登录失败！');
-                    }
+                    }*/
                 })
             });
         })
@@ -661,7 +676,6 @@ class Router {
                 })*/
             });
         })
-
 
         app.post('/rename', (req, res) => {
             //console.log('Cookies: ', req.cookies)
@@ -917,6 +931,93 @@ class Router {
                         });
                     });
                 }
+            });
+        })
+
+        //JWT
+        //注册新的token
+        app.post('/jwt/new', (req, res) => {
+            /*const userLoginCheckArr = [{
+                name: 'email',
+                required: true,
+                reg: new RegExp("^[0-9a-z_\\.\\-]+@[0-9a-z\\-]+\\.[0-9a-z\\.\\-]{2,}$", "i"),
+                msg: '无效邮箱地址！'
+            }, {
+                name: 'password',
+                required: true,
+                reg: new RegExp("^[\\S]{6,}$", "i"),
+                msg: '请输入至少6位密码！'
+            }];*/
+            lib.postDataCheckAction(req, res, userLoginCheckArr, result => {
+                //console.log("login", result)
+                User.findOne({
+                    where: {
+                        email: result.email,
+                        password: result.password
+                    }
+                }).then(function(user) {
+                    //console.log("findOne", user)
+                    const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
+                    // get private key
+                    jwt.sign({
+                        email: (user) ? result.email : defaultUser
+                    }, cert, {
+                        algorithm: 'RS256'
+                    }, function(err, token) {
+                        if (err) {
+                            lib.errRes(res, '创建token失败！');
+                        } else {
+                            lib.okRes(res, '创建token成功！', {}, lib.setCookie('email', token, 365));
+                        }
+                    });
+                })
+            });
+        })
+        //刷新token
+        app.post('/jwt/refresh', (req, res) => {
+
+        })
+        //验证token
+        app.post('/jwt/is_valid', (req, res) => {
+            const jwtIsValidCheckArr = [{
+                name: 'email',
+                required: true,
+                reg: new RegExp("^[\\S]{6,}$", "i"),
+                msg: '无效邮箱token！'
+            }];
+            lib.postDataCheckAction(req, res, jwtIsValidCheckArr, result => {
+                let token = result.email;
+
+                var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pub');
+                // get public key
+                jwt.verify(token, cert, {
+                    algorithms: ['RS256']
+                }, function(err, payload) {
+                    console.log("=========verify", err, payload)
+                    // if token alg != RS256,  err == invalid signature
+                });
+
+                /*User.findOne({
+                    where: {
+                        email: result.email,
+                        password: result.password
+                    }
+                }).then(function(user) {
+                    //console.log("findOne", user)
+                    const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
+                    // get private key
+                    jwt.sign({
+                        email: (user) ? result.email : defaultUser
+                    }, cert, {
+                        algorithm: 'RS256'
+                    }, function(err, token) {
+                        if (err) {
+                            lib.errRes(res, '创建token失败！');
+                        } else {
+                            lib.okRes(res, '创建token成功！', {}, lib.setCookie('email', token, 365));
+                        }
+                    });
+                })*/
             });
         })
 

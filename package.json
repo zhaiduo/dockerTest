@@ -19,6 +19,7 @@
     "file-loader": "^0.9.0",
     "formidable": "^1.0.17",
     "html-webpack-plugin": "^2.22.0",
+    "jsonwebtoken": "^7.1.9",
     "koa": "^1.2.1",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",

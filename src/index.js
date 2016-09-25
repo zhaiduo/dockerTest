@@ -8,10 +8,28 @@ import {
 }
 from './Func';
 
+import {
+    myFetch
+}
+from './myFetch'
+
 import * as pbEvt from './Event';
 const userDefault = 'guest@img.pinbot.me';
 
 window.onload = function(event) {
+    //验证jwt token
+
+    //
+    let req = new myFetch('/jwt/is_valid', {
+        method: 'POST',
+        email: pbFunc.getCookie('email')
+    });
+    if (req) req.then(result => {
+
+    }).catch(result => {
+
+    })
+
     //console.log('getCookie', pbFunc.getCookie('email'))
     if (pbFunc.getCookie('email') && pbFunc.getCookie('email') !== userDefault) {
         pbFunc.toggleUserLayout(true);
