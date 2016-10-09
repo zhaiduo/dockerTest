@@ -118,6 +118,127 @@ const func = {
         str = str.trim().replace(/[\s]/ig, '+')
         //console.log('b64_to_utf81', str);
         return new Buffer(str, 'base64').toString('utf8');
+    },
+    formatDate: (format, ts) => {
+        let tsDate = (ts != undefined && typeof ts == 'number') ? new Date(ts) : new Date();
+        let o = {
+            "M+": tsDate.getMonth() + 1,
+            // month
+            "d+": tsDate.getDate(),
+            // day
+            "h+": tsDate.getHours(),
+            // hour
+            "m+": tsDate.getMinutes(),
+            // minute
+            "s+": tsDate.getSeconds(),
+            // second
+            "q+": Math.floor((tsDate.getMonth() + 3) / 3),
+            // quarter
+            "S": tsDate.getMilliseconds()
+            // millisecond
+        };
+        //console.log('o',o);
+        if (/(y+)/.test(format) || /(Y+)/.test(format)) {
+            format = format.replace(RegExp.$1, (tsDate.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        for (let k in o) {
+            if (o.hasOwnProperty(k) && new RegExp("(" + k + ")").test(format)) {
+                format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
+            }
+        }
+        return format;
+    },
+    /**
+     * 获取日期对象
+     * @param  {object}  t         Date日期对象
+     * @param  {Boolean} isLeftPad 是否需要前置零
+     * @return {object}            返回年月日时分秒的对象
+     */
+    getDateObj: (t, isLeftPad) => {
+        /**
+         * 前置零实现函数
+         * @param  {string} n 需要处理的数字
+         * @return {string}   返回添加前置零的数字
+         */
+        let leftPadZero = function(n) {
+            if (parseInt(n) < 10) {
+                return '0' + n;
+            } else {
+                return '' + n;
+            }
+        };
+        let dt;
+        if (t != undefined) {
+            if (typeof t == 'string' || typeof t == 'number') {
+                dt = new Date(t); //'9/24/2015 14:52:10' || 1450656000000
+            } else if (typeof t == 'object' && t.constructor == Date) {
+                dt = t;
+            } else {
+                dt = new Date();
+            }
+        } else {
+            dt = new Date();
+        }
+        let m = (isLeftPad !== undefined && isLeftPad) ? leftPadZero(dt.getMonth() + 1) : dt.getMonth() + 1;
+        let d = (isLeftPad !== undefined && isLeftPad) ? leftPadZero(dt.getDate()) : dt.getDate();
+        let h = (isLeftPad !== undefined && isLeftPad) ? leftPadZero(dt.getHours()) : dt.getHours();
+        let i = (isLeftPad !== undefined && isLeftPad) ? leftPadZero(dt.getMinutes()) : dt.getMinutes();
+        let s = (isLeftPad !== undefined && isLeftPad) ? leftPadZero(dt.getSeconds()) : dt.getSeconds();
+        return {
+            y: dt.getFullYear(),
+            m: m,
+            d: d,
+            h: h,
+            i: i,
+            s: s
+        };
+    },
+    //通过位移获取时间对象
+    getDateByOffset: (trg, offset, t, isLeftPad) => {
+        let currDateObj = this.getDateObj(t);
+        let newDate = null;
+        let _offset = parseInt(offset);
+        if (isNaN(_offset)) _offset = 0;
+        if (trg === 'y') {
+            newDate = new Date(currDateObj.y + _offset, currDateObj.m - 1, currDateObj.d, currDateObj.h, currDateObj.i, currDateObj.s);
+        } else if (trg === 'm') {
+            newDate = new Date(currDateObj.y, currDateObj.m - 1 + _offset, currDateObj.d, currDateObj.h, currDateObj.i, currDateObj.s);
+        } else if (trg === 'd') {
+            newDate = new Date(currDateObj.y, currDateObj.m - 1, currDateObj.d + _offset, currDateObj.h, currDateObj.i, currDateObj.s);
+        } else if (trg === 'h') {
+            newDate = new Date(currDateObj.y, currDateObj.m - 1, currDateObj.d, currDateObj.h + _offset, currDateObj.i, currDateObj.s);
+        } else if (trg === 'i') {
+            newDate = new Date(currDateObj.y, currDateObj.m - 1, currDateObj.d, currDateObj.h, currDateObj.i + _offset, currDateObj.s);
+        } else if (trg === 's') {
+            newDate = new Date(currDateObj.y, currDateObj.m - 1, currDateObj.d, currDateObj.h, currDateObj.i, currDateObj.s + _offset);
+        }
+        return this.getDateObj(newDate, isLeftPad);
+    },
+    getTimestamp: (dateStr) => {
+        let dt = new Date(dateStr);
+        return Math.round(dt.getTime() / 1000);
+    },
+    getTimestampMs: (dateStr) => {
+        let dt = new Date(dateStr);
+        return Math.round(dt.getTime());
+    },
+    getTs: () => {
+        return Math.round((new Date()).getTime() / 1000);
+    },
+    countDaysByMonth: (currentTs, monthNum) => {
+        let monthStart = new Date(currentTs);
+        let monthStartObj = this.getDateObj(currentTs);
+        //year, month, day, hour, minute, second, and millisecond
+        let monthEnd = new Date(monthStartObj.y, monthStartObj.m - 1 + monthNum, monthStartObj.d, monthStartObj.h, monthStartObj.i, monthStartObj.s);
+        let dayLength = (monthEnd - monthStart) / 86400000;
+        return dayLength;
+    },
+    getExpiredDateArr: (currentTs, monthNum) => {
+        let monthStart = new Date(currentTs);
+        let monthStartObj = this.getDateObj(currentTs);
+        let monthEnd = new Date(monthStartObj.y, monthStartObj.m - 1 + monthNum, monthStartObj.d, monthStartObj.h, monthStartObj.i, monthStartObj.s);
+        let endTs = this.getTimestampMs(monthEnd);
+        return [endTs, this.formatDate('yyyy-MM-dd hh:mm:ss', endTs)];
     }
 };
 
@@ -196,7 +317,7 @@ const setCookie = (key, value, day) => {
     expires.setTime(expires.getTime() + ckTime);
     //document.cookie = key + '=' + value + ';expires=' + expires.toUTCString() + ';path=/;';
     return {
-        'Set-Cookie': key + '=' + value + ';expires=' + expires.toUTCString() + ';path=/;'
+        'Set-Cookie': key + '=' + func.utf8_to_b64(value) + ';expires=' + expires.toUTCString() + ';path=/;'
     };
 };
 

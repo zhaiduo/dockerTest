@@ -20,15 +20,32 @@ window.onload = function(event) {
     //验证jwt token
 
     //
-    let req = new myFetch('/jwt/is_valid', {
+    /*let req = new myFetch('/jwt/is_valid', {
         method: 'POST',
-        email: pbFunc.getCookie('email')
+        data: {
+            email: pbFunc.getCookie('email')
+        }
     });
     if (req) req.then(result => {
-
+        console.log('is_valid', result)
     }).catch(result => {
+        console.log('is_valid err', result)
+    })*/
 
-    })
+    if(pbFunc.getCookie('email')){
+        let req = new myFetch('/jwt/refresh', {
+            method: 'POST',
+            data: {
+                email: pbFunc.getCookie('email')
+            }
+        });
+        if (req) req.then(result => {
+            console.log('is_valid', result)
+        }).catch(result => {
+            console.log('is_valid err', result)
+        })
+    }
+
 
     //console.log('getCookie', pbFunc.getCookie('email'))
     if (pbFunc.getCookie('email') && pbFunc.getCookie('email') !== userDefault) {

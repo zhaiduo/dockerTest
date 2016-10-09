@@ -187,7 +187,7 @@ const loginSubmitEvnt = (event) => {
             password: pbFunc.MD5(args[0].querySelector("#email").value + args[0].querySelector("#password").value),
             email: args[0].querySelector("#email").value
         }, (result) => {
-            console.log('login ok', result, pbFunc.getCookie('email'));
+            console.log('login ok', result);
             pbFunc.toggleClass(args[0], 'qp-ui-mask-visible', false);
             //获取email
 

@@ -4,7 +4,7 @@ const express = require('express');
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
-    //const jwt = require('express-jwt');
+const jwtEx = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const app = express();
 const formidable = require('formidable')
@@ -611,14 +611,17 @@ class Router {
                     const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
                     // get private key
                     jwt.sign({
-                        email: (user) ? result.email : defaultUser
+                        email: (user) ? result.email : defaultUser,
+                        exp: Math.round((new Date()).getTime())+60000
                     }, {
                         key: cert,
                         passphrase: 'adamgogogo'
+                        //not before
                     }, {
-                        algorithm: 'RS256'
+                        algorithm: 'RS256',
+                        //expiresIn: '1h' //'d h days'
                     }, function(err, token) {
-                        //console.log("jwt", err, token)
+                        console.log("jwt", err, token)
                         if (err) {
                             lib.errRes(res, '创建token失败！');
                         } else {
@@ -975,7 +978,33 @@ class Router {
         })
         //刷新token
         app.post('/jwt/refresh', (req, res) => {
+            const jwtIsValidCheckArr = [{
+                name: 'email',
+                required: true,
+                reg: new RegExp("^[\\S]{6,}$", "i"),
+                msg: '无效邮箱token！'
+            }];
+            lib.postDataCheckAction(req, res, jwtIsValidCheckArr, result => {
+                let token = result.email;
 
+                var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pem');
+                // get public key
+                //console.log("jwt", cert)
+                jwt.verify(token, cert, {
+                    algorithms: ['RS256']
+                }, function(err, payload) {
+                    console.log("=========verify", err, payload)
+                    // if token alg != RS256,  err == invalid signature
+                    //{ email: 'zhaiduo@gmail.com', iat: 1474993128 }
+                    // exp: 1475170786, iat: 1475084385
+                    if (payload) {
+                        lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp));
+                    } else {
+                        lib.errRes(res, '无效token！');
+                    }
+                });
+
+            });
         })
         //验证token
         app.post('/jwt/is_valid', (req, res) => {
@@ -988,13 +1017,20 @@ class Router {
             lib.postDataCheckAction(req, res, jwtIsValidCheckArr, result => {
                 let token = result.email;
 
-                var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pub');
+                var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pem');
                 // get public key
+                console.log("jwt", cert)
                 jwt.verify(token, cert, {
                     algorithms: ['RS256']
                 }, function(err, payload) {
                     console.log("=========verify", err, payload)
                     // if token alg != RS256,  err == invalid signature
+                    //{ email: 'zhaiduo@gmail.com', iat: 1474993128 }
+                    if (payload) {
+                        lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd', payload.iat));
+                    } else {
+                        lib.errRes(res, '无效token！');
+                    }
                 });
 
                 /*User.findOne({
