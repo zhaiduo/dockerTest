@@ -7,7 +7,7 @@
   "scripts": {
     "start": "NODE_ENV=production supervisor -i client app",
     "develop": "NODE_ENV=development supervisor -i client app",
-    "eslint": "eslint app.js",
+    "eslint": "eslint --fix app.js",
     "build": "BUILD_DEV=0 ./node_modules/webpack/bin/webpack.js -p"
   },
   "dependencies": {

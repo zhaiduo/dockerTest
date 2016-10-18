@@ -20,7 +20,7 @@ window.onload = function(event) {
     //验证jwt token
 
     //
-    /*let req = new myFetch('/jwt/is_valid', {
+    let req = new myFetch('/jwt/is_valid', {
         method: 'POST',
         data: {
             email: pbFunc.getCookie('email')
@@ -30,9 +30,9 @@ window.onload = function(event) {
         console.log('is_valid', result)
     }).catch(result => {
         console.log('is_valid err', result)
-    })*/
+    })
 
-    if(pbFunc.getCookie('email')){
+    /*if(pbFunc.getCookie('email')){
         let req = new myFetch('/jwt/refresh', {
             method: 'POST',
             data: {
@@ -44,7 +44,7 @@ window.onload = function(event) {
         }).catch(result => {
             console.log('is_valid err', result)
         })
-    }
+    }*/
 
 
     //console.log('getCookie', pbFunc.getCookie('email'))

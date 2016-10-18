@@ -4,7 +4,7 @@ const express = require('express');
 const fs = require('fs')
 const path = require('path')
 const mkdirp = require('mkdirp')
-const jwtEx = require('express-jwt');
+    //const jwtEx = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const app = express();
 const formidable = require('formidable')
@@ -607,12 +607,22 @@ class Router {
                     }
                 }).then(function(user) {
                     //console.log("findOne", user)
-
-                    const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
+                    lib.jwtFunc.newToken({
+                        email: (user) ? result.email : defaultUser,
+                        exp: lib.jwtFunc.genExp()
+                    }, (err, token) => {
+                        console.log("jwt", err, token)
+                        if (err) {
+                            lib.errRes(res, '创建token失败！');
+                        } else {
+                            lib.okRes(res, '创建token成功！', {}, lib.setCookie('email', token, 365));
+                        }
+                    })
+                    /*const cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt');
                     // get private key
                     jwt.sign({
                         email: (user) ? result.email : defaultUser,
-                        exp: Math.round((new Date()).getTime())+60000
+                        exp: Math.round((new Date()).getTime()) + 60000
                     }, {
                         key: cert,
                         passphrase: 'adamgogogo'
@@ -627,7 +637,7 @@ class Router {
                         } else {
                             lib.okRes(res, '创建token成功！', {}, lib.setCookie('email', token, 365));
                         }
-                    });
+                    });*/
                     /*if (user) {
                         console.log('result.email', result.email);
                         lib.okRes(res, '登录成功！', {}, lib.setCookie('email', lib.func.utf8_to_b64(result.email), 365));
@@ -938,7 +948,7 @@ class Router {
         })
 
         //JWT
-        //注册新的token
+        //注册新的token, see: /login
         app.post('/jwt/new', (req, res) => {
             /*const userLoginCheckArr = [{
                 name: 'email',
@@ -993,12 +1003,28 @@ class Router {
                 jwt.verify(token, cert, {
                     algorithms: ['RS256']
                 }, function(err, payload) {
-                    console.log("=========verify", err, payload)
+                    console.log("=========verify", err, payload, lib.func.getTimestampMs())
                     // if token alg != RS256,  err == invalid signature
                     //{ email: 'zhaiduo@gmail.com', iat: 1474993128 }
-                    // exp: 1475170786, iat: 1475084385
+                    // exp: 1475170786, iat: 1475 084385
+                    let current_exp = lib.func.getTimestampMs();
                     if (payload) {
-                        lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp));
+                        if (payload.exp <= current_exp) {
+                            lib.errRes(res, 'token过期！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp) + ' ' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', current_exp));
+                        } else {
+                            lib.jwtFunc.newToken({
+                                email: payload.email,
+                                exp: lib.jwtFunc.genExp()
+                            }, (err, token) => {
+                                console.log("jwt", err, token)
+                                if (err) {
+                                    lib.errRes(res, '刷新token失败！');
+                                } else {
+                                    lib.okRes(res, '刷新token成功！', {}, lib.setCookie('email', token, 365));
+                                }
+                            })
+                            //lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp));
+                        }
                     } else {
                         lib.errRes(res, '无效token！');
                     }
@@ -1017,7 +1043,22 @@ class Router {
             lib.postDataCheckAction(req, res, jwtIsValidCheckArr, result => {
                 let token = result.email;
 
-                var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pem');
+                lib.jwtFunc.verifyToken(token, (err, payload) => {
+                    console.log("=========verify", err, payload)
+                    // if token alg != RS256,  err == invalid signature
+                    //{ email: 'zhaiduo@gmail.com', iat: 1474993128 }
+                    if (payload) {
+                        let current_exp = lib.func.getTimestampMs();
+                        if (payload.exp <= current_exp) {
+                            lib.errRes(res, 'token过期！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp) + ' ' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', current_exp));
+                        } else {
+                            lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp));
+                        }
+                    } else {
+                        lib.errRes(res, '无效token！');
+                    }
+                })
+                /*var cert = fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pem');
                 // get public key
                 console.log("jwt", cert)
                 jwt.verify(token, cert, {
@@ -1027,11 +1068,11 @@ class Router {
                     // if token alg != RS256,  err == invalid signature
                     //{ email: 'zhaiduo@gmail.com', iat: 1474993128 }
                     if (payload) {
-                        lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd', payload.iat));
+                        lib.okRes(res, '验证成功[' + payload.email + ']！' + lib.func.formatDate('yyyy-MM-dd hh-mm-ss', payload.exp));
                     } else {
                         lib.errRes(res, '无效token！');
                     }
-                });
+                });*/
 
                 /*User.findOne({
                     where: {

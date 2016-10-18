@@ -2,6 +2,7 @@
 'use strict'
 const express = require('express')
 const formidable = require('formidable')
+const jwt = require('jsonwebtoken');
 const fs = require('fs')
 const app = express()
 const config = require('./config.js').setting[app.get('env')];
@@ -215,11 +216,11 @@ const func = {
         return this.getDateObj(newDate, isLeftPad);
     },
     getTimestamp: (dateStr) => {
-        let dt = new Date(dateStr);
+        let dt = (typeof dateStr === 'string') ? new Date(dateStr) : new Date();
         return Math.round(dt.getTime() / 1000);
     },
     getTimestampMs: (dateStr) => {
-        let dt = new Date(dateStr);
+        let dt = (typeof dateStr === 'string') ? new Date(dateStr) : new Date();
         return Math.round(dt.getTime());
     },
     getTs: () => {
@@ -409,6 +410,34 @@ const sql = {
     }
 };
 
+const jwtFunc = {
+    cert: fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt'),
+    pem: fs.readFileSync('./db/id_rsa_img_pinbot_me_jwt.pem'),
+    passphrase: 'adamgogogo',
+    genExp: () => {
+        return Math.round((new Date()).getTime()) + 600000
+    },
+    newToken: (data, callback) => {
+        jwt.sign(data, {
+            key: this.jwtFunc.cert,
+            passphrase: this.jwtFunc.passphrase
+            //not before
+        }, {
+            algorithm: 'RS256',
+            //expiresIn: '1h' //'d h days'
+        }, function(err, token) {
+            callback(err, token);
+        });
+    },
+    verifyToken: (token, callback) => {
+        jwt.verify(token, this.jwtFunc.pem, {
+            algorithms: ['RS256']
+        }, function(err, payload) {
+            callback(err, payload);
+        });
+    }
+};
+
 class reqAction {
     static go(isCanDo, actionClass) {
         if (typeof isCanDo === 'boolean' && isCanDo === true) {
@@ -434,3 +463,4 @@ exports.commonReg = commonReg
 exports.fsAction = fsAction
 exports.sql = sql
 exports.func = func
+exports.jwtFunc = jwtFunc
