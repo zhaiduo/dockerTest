@@ -1,73 +1,70 @@
-#Dockerfile Test
+# Dockerfile Test
 
-##如何启动？
+## How to start server?
 > npm install
 > npm install suppervisor
-> ./doMigrate.sh
-> npm run develop (本地)
-> npm run start (线上)
+> npm run develop (local)
+> npm run start (online)
 
-##How to use
+## How to use?
 
-安装好 `Docker` 环境后，直接运行我们构建好的容器即可：
+after install `Docker` env, and run:
 > docker run -d --restart=always -p 8080:8080 --name docker_node_app_alpine zhaiduo/docker_node_app:alpine
 
-##More Tips
+## More Tips
 
-初始化 `docker` 环境
+init `docker` env
 > eval "$(docker-machine env default)"
 
-查看所有容器
+check docker sessions
 > docker ps -a
 
-查看删除已有容器
+delete docker container
 > docker rm [CONTAINER ID]
 
-创建一个容器，让其中运行 `bash` 应用。
+run a container with bash
 > docker run -t -i zhaiduo/docker_node_app:alpine /bin/bash
 
-停止/开始运行
+stop/start
 > docker stop/start [CONTAINER ID]/[IMAGE]
 
-使用 `docker commit` 命令来提交更新后的副本。
+`docker commit`
 > docker commit -m "Added" -a "Docker New" [CONTAINER ID] [IMAGE]
 
-`docker tag` 命令来修改镜像的标签。
+`docker tag`
 > docker tag [CONTAINER ID] [IMAGE]
 > docker images [IMAGE]
 
-`docker push` 命令，把自己创建的镜像上传到仓库中来共享。例如，用户在 `Docker Hub` 上完成注册后，可以推送自己的镜像到仓库中。
+`docker push` to share your image to onlint.
 
-如果要导出镜像到本地文件
+backup
 > docker save -o [IMAGEName].tar [IMAGE]
 > docker export [CONTAINER ID] > [IMAGEName].tar
 
-载入镜像
+restore
 > docker load --input [IMAGEName].tar | docker load < [IMAGEName].tar ｜ cat [IMAGEName].tar | docker import - [IMAGE]
 
-`docker load` 来导入镜像存储文件到本地镜像库，也可以使用 `docker import` 来导入一个[容器快照]到本地镜像库。
-这两者的区别在于[容器快照]文件将丢弃所有的历史记录和元数据信息
+`docker load`, but `docker import` will lost history log。
 
-移除本地的镜像，可以使用 `docker rmi` 命令。注意 `docker rm` 命令是移除容器
+remove image `docker rmi`, and remote container use `docker rm`
 > docker rmi [IMAGE]
 
-调试 `docker` 启动错误
+debug `docker`
 > docker start -a -i [CONTAINER ID]
 
-问题：Repository xxx already being pulled by another client. Waiting.
+Issue：Repository xxx already being pulled by another client. Waiting.
 > docker-machine restart default
 > eval "$(docker-machine env default)"
 
-* 注意：在删除镜像之前要先用 `docker rm` 删掉依赖于这个镜像的所有容器。
+* Attension: before remove image with `docker rm`, do remove all containers of it first.
 
-##Links
+## Links
 More: https://yeasy.gitbooks.io/docker_practice/content/introduction/
 
-
-##目的
-1. 了解熟悉ES6/Webpack开发流程
-2. 了解ES6原生开发优缺点
-3. 体会和React/Angular2的区别
+## Other Purpose
+1. familiar with ES6/Webpack.
+2. pros/crons on ES6.
+3. diferences between React and Angular2.
 
 
 

@@ -3,8 +3,6 @@
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
-//const koa = require('koa');
-//const jwt = require('express-jwt');
 
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
@@ -28,11 +26,7 @@ const {
     PORT: PORT,
     HOST: HOST,
     HTTP: HTTP,
-    UPLOAD_URL: UPLOAD_URL,
-    UPLOAD_DIR: UPLOAD_DIR,
-    CORS_DOMAIN: CORS_DOMAIN,
-    IMG_PREFIX: IMG_PREFIX,
-    SQL_DIR: SQL_DIR
+    CORS_DOMAIN: CORS_DOMAIN
 } = config;
 
 if (app.get('env') === 'development') {

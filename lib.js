@@ -11,11 +11,7 @@ const {
     PORT: PORT,
     HOST: HOST,
     HTTP: HTTP,
-    UPLOAD_URL: UPLOAD_URL,
-    UPLOAD_DIR: UPLOAD_DIR,
-    CORS_DOMAIN: CORS_DOMAIN,
-    IMG_PREFIX: IMG_PREFIX,
-    SQL_DIR: SQL_DIR
+    CORS_DOMAIN: CORS_DOMAIN
 } = config;
 
 const getDateObj = (t) => {

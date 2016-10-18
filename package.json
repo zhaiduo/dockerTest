@@ -1,8 +1,8 @@
 {
-  "name": "docker_node_app",
-  "version": "0.1.2",
-  "description": "Node.js on Docker",
-  "author": "Adam <lvyadong@hopperclouds.com>",
+  "name": "es6-jwt-api-starter",
+  "version": "0.1.0",
+  "description": "es6-jwt-api-starter",
+  "author": "Adam <zhaiduo@gmail.com>",
   "main": "app.js",
   "scripts": {
     "start": "NODE_ENV=production supervisor -i client app",
@@ -15,26 +15,18 @@
     "cookie-parser": "^1.4.3",
     "css-loader": "^0.23.1",
     "express": "^4.13.3",
-    "express-jwt": "^3.4.0",
-    "file-loader": "^0.9.0",
     "formidable": "^1.0.17",
     "html-webpack-plugin": "^2.22.0",
     "jsonwebtoken": "^7.1.9",
-    "koa": "^1.2.1",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mkdirp": "^0.5.1",
     "reload": "^1.0.1",
-    "sequelize": "^3.24.0",
-    "sequelize-cli": "^2.4.0",
-    "sqlite3": "^3.1.4",
-    "style-loader": "^0.13.1",
-    "supervisor": "^0.11.0",
-    "url-loader": "^0.5.7"
+    "supervisor": "^0.11.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zhaiduo/dockerTest"
+    "url": "https://github.com/zhaiduo/es6-jwt-api-starter"
   },
   "license": "MIT",
   "devDependencies": {
