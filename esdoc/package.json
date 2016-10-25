@@ -9,13 +9,9 @@
     "develop": "NODE_ENV=development supervisor -i client app",
     "eslint": "eslint --fix app.js",
     "build": "BUILD_DEV=0 ./node_modules/webpack/bin/webpack.js -p",
-    "doc": "./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
-    "test": "./node_modules/mocha/bin/mocha --compilers js:babel-register",
-    "report": "node --harmony_destructuring ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -u exports -R spec --compilers js:babel-register",
-    "report2": "./node_modules/isparta/bin/isparta cover -v ./node_modules/mocha/bin/_mocha -- --compilers js:babel-register"
+    "doc": "./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json"
   },
   "dependencies": {
-    "chai": "^3.5.0",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
     "css-loader": "^0.23.1",
@@ -27,7 +23,6 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mkdirp": "^0.5.1",
-    "mocha": "^3.1.2",
     "reload": "^1.0.1",
     "supervisor": "^0.11.0"
   },
@@ -38,13 +33,9 @@
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.13.2",
-    "babel-istanbul": "^0.11.0",
     "babel-loader": "^6.2.4",
-    "babel-polyfill": "^6.16.0",
     "babel-preset-es2015": "^6.13.2",
     "eslint": "^3.3.1",
-    "isparta": "^4.0.0",
-    "istanbul": "^1.1.0-alpha.1",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.4.1"

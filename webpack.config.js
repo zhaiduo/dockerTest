@@ -4,39 +4,14 @@ var path = require('path');
 var publicPath = 'http://localhost:8080/static';
 var hotMiddlewareScript = './node_modules/webpack-hot-middleware/client?reload=true';
 
-var myEntry = {
-    index: [
-        './src/index.js',
-        hotMiddlewareScript
-    ],
-    style: [
-        './src/style.js',
-        './src/styles.less',
-        hotMiddlewareScript
-    ],
-    material: [
-        './src/material.js',
-        hotMiddlewareScript
-    ]
-};
+var myEntry = {};
 var myPlugins = [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin()
 ];
 if (process.env.NODE_ENV === 'production') {
-    myEntry = {
-        index: [
-            './src/index.js'
-        ],
-        style: [
-            './src/style.js',
-            './src/styles.less'
-        ],
-        material: [
-            './src/material.js'
-        ]
-    };
+    myEntry = {};
     myPlugins = [];
 }
 
